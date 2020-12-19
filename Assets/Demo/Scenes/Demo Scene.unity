@@ -243,7 +243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PanelSettings: {fileID: 11400000, guid: f08cd65915ce63548b03c31f655a1906, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 17fa5e509e8519744bfa130cb4eb9deb, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 98849c105bc3ddf48940f9e133ce7a6b, type: 3}
   m_SortingOrder: 0
 --- !u!114 &9433616
 MonoBehaviour:
@@ -728,7 +728,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 735915712}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6803edce0201f574f923fd9d10e5b30a, type: 3}
   m_Name: 
@@ -1192,7 +1192,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1619843781}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6803edce0201f574f923fd9d10e5b30a, type: 3}
   m_Name: 
@@ -1555,7 +1555,7 @@ GameObject:
   m_Component:
   - component: {fileID: 543450651886739216}
   m_Layer: 0
-  m_Name: tablet
+  m_Name: Tablet With Labels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

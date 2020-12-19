@@ -7,7 +7,7 @@ namespace UIToolkitXRAdapter.AngularSizeText {
     public sealed class AngularSizeLabel : Label, IAngularSizeText<AngularSizeLabel> {
         private float _angularHeight;
 
-        private Length _initialFontHeight;
+        private Length? _initialFontHeight;
 
         public new static readonly string ussClassName = "angular-size-label";
 
@@ -16,8 +16,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
 
         public new class UxmlTraits : TextElement.UxmlTraits {
             private UxmlFloatAttributeDescription m_TextSize = new UxmlFloatAttributeDescription {
-                name = "size-in-degrees",
-                defaultValue = 1.5f
+                name = "size-in-arc-minutes",
+                defaultValue = 90f
             };
 
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc) {
@@ -25,7 +25,10 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 var angularSizeLabel = (AngularSizeLabel) ve;
                 angularSizeLabel._angularHeight = m_TextSize.GetValueFromBag(bag, cc);
 
-                angularSizeLabel._initialFontHeight = AngularSizeTextUtils.ExtractFontSize(bag);
+                var initialFontHeight = AngularSizeTextUtils.ExtractFontSize(bag);
+                if (initialFontHeight.HasValue) {
+                    angularSizeLabel._initialFontHeight = initialFontHeight.Value;
+                }
             }
         }
 
@@ -39,13 +42,12 @@ namespace UIToolkitXRAdapter.AngularSizeText {
 
         void IAngularSizeText.ResizeByTrigonometricRatios(float distanceToCamera, float pixelPerMeter) {
             // see https://en.wikipedia.org/wiki/Trigonometry#Trigonometric_ratios
-            var angularHeightInPixel = distanceToCamera * Tan(Deg2Rad * _angularHeight) / pixelPerMeter;
+            var angularHeightInPixel = distanceToCamera * Tan(Deg2Rad * (_angularHeight / 60)) / pixelPerMeter;
             var currentFontHeight = resolvedStyle.fontSize;
             var newDimensions = MeasureTextSize(text, resolvedStyle.width, AtMost, angularHeightInPixel, AtMost);
 
-            if (_initialFontHeight.IsHigherThan(newDimensions.y, resolvedStyle)
-                && angularHeightInPixel < currentFontHeight
-            ) {
+            if (_initialFontHeight.HasValue && _initialFontHeight.Value.IsHigherThan(newDimensions.y, resolvedStyle) &&
+                angularHeightInPixel < currentFontHeight) {
                 // this shouldn't be smaller
                 return;
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CoreLibrary;
+using JetBrains.Annotations;
 using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,17 +11,16 @@ namespace UIToolkitXRAdapter.AngularSizeText {
         private const string Pixel = "px";
         private const string Percent = "%";
 
+        [CanBeNull]
         private static string ExtractStylesAsString(IUxmlAttributes uxmlAttributes) {
-            if (!uxmlAttributes.TryGetAttributeValue("style", out var stylesAsString)) {
-                throw new UnityException(
-                    $"Could not read the required style string from an {nameof(AngularSizeLabel)}.");
-            }
-
-            return stylesAsString;
+            return !uxmlAttributes.TryGetAttributeValue("style", out var stylesAsString) ? null : stylesAsString;
         }
 
-        private static IReadOnlyDictionary<string, string> ToStylesDictionary(IUxmlAttributes uxmlAttributes) =>
-            ToDict(ExtractStylesAsString(uxmlAttributes));
+        [CanBeNull]
+        private static IReadOnlyDictionary<string, string> ToStylesDictionary(IUxmlAttributes uxmlAttributes) {
+            var stylesAsString = ExtractStylesAsString(uxmlAttributes);
+            return stylesAsString == null ? null : ToDict(stylesAsString);
+        }
 
         private static IReadOnlyDictionary<string, string> ToDict(string stylesAsString) {
             return stylesAsString.Split(';').Where(UtilityExtensions.IsNotEmpty).Select(styleProperty => {
@@ -60,8 +60,10 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             return new Length(lengthSize, lengthUnit);
         }
 
-        internal static Length ExtractFontSize(IUxmlAttributes uxmlAttributes) =>
-            ExtractFontSize(ToStylesDictionary(uxmlAttributes));
+        internal static Length? ExtractFontSize(IUxmlAttributes uxmlAttributes) {
+            var stylesDictionary = ToStylesDictionary(uxmlAttributes);
+            return stylesDictionary == null ? (Length?) null : ExtractFontSize(stylesDictionary);
+        }
 
         private static Length ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) {
             var fontSize = ExtractLength(stylesAsDict, "font-size");

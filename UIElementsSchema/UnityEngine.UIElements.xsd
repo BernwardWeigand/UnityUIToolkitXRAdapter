@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:editor="UnityEditor.UIElements" xmlns:engine="UnityEngine.UIElements" xmlns="UnityEditor.Rendering.LookDev" elementFormDefault="qualified" targetNamespace="UnityEngine.UIElements" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:editor="UnityEditor.UIElements" xmlns:engine="UnityEngine.UIElements" xmlns="UnityEditor.PackageManager.UI" elementFormDefault="qualified" targetNamespace="UnityEngine.UIElements" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:complexType name="UXMLType">
     <xs:complexContent mixed="false">
       <xs:restriction base="xs:anyType">
@@ -98,6 +98,8 @@
         <xs:attribute default="" name="style" type="xs:string" use="optional" />
         <xs:attribute default="" name="binding-path" type="xs:string" use="optional" />
         <xs:attribute default="" name="text" type="xs:string" use="optional" />
+        <xs:attribute default="true" name="enable-rich-text" type="xs:boolean" use="optional" />
+        <xs:attribute default="false" name="display-tooltip-when-elided" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>
@@ -118,6 +120,8 @@
         <xs:attribute default="" name="style" type="xs:string" use="optional" />
         <xs:attribute default="" name="binding-path" type="xs:string" use="optional" />
         <xs:attribute default="" name="text" type="xs:string" use="optional" />
+        <xs:attribute default="true" name="enable-rich-text" type="xs:boolean" use="optional" />
+        <xs:attribute default="false" name="display-tooltip-when-elided" type="xs:boolean" use="optional" />
         <xs:attribute default="0" name="delay" type="xs:long" use="optional" />
         <xs:attribute default="0" name="interval" type="xs:long" use="optional" />
         <xs:anyAttribute processContents="lax" />
@@ -226,6 +230,7 @@
         <xs:attribute default="0" name="page-size" type="xs:float" use="optional" />
         <xs:attribute default="false" name="show-input-field" type="xs:boolean" use="optional" />
         <xs:attribute default="Horizontal" name="direction" type="engine:Slider_direction_Type" use="optional" />
+        <xs:attribute default="false" name="inverted" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>
@@ -261,6 +266,7 @@
         <xs:attribute default="0" name="page-size" type="xs:int" use="optional" />
         <xs:attribute default="false" name="show-input-field" type="xs:boolean" use="optional" />
         <xs:attribute default="Horizontal" name="direction" type="engine:SliderInt_direction_Type" use="optional" />
+        <xs:attribute default="false" name="inverted" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>
@@ -438,6 +444,8 @@
         <xs:attribute default="" name="style" type="xs:string" use="optional" />
         <xs:attribute default="" name="binding-path" type="xs:string" use="optional" />
         <xs:attribute default="" name="text" type="xs:string" use="optional" />
+        <xs:attribute default="true" name="enable-rich-text" type="xs:boolean" use="optional" />
+        <xs:attribute default="false" name="display-tooltip-when-elided" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>
@@ -607,6 +615,8 @@
         <xs:attribute default="" name="style" type="xs:string" use="optional" />
         <xs:attribute default="" name="binding-path" type="xs:string" use="optional" />
         <xs:attribute default="" name="text" type="xs:string" use="optional" />
+        <xs:attribute default="true" name="enable-rich-text" type="xs:boolean" use="optional" />
+        <xs:attribute default="false" name="display-tooltip-when-elided" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>
@@ -658,6 +668,8 @@
         <xs:attribute default="" name="style" type="xs:string" use="optional" />
         <xs:attribute default="" name="binding-path" type="xs:string" use="optional" />
         <xs:attribute default="" name="text" type="xs:string" use="optional" />
+        <xs:attribute default="true" name="enable-rich-text" type="xs:boolean" use="optional" />
+        <xs:attribute default="false" name="display-tooltip-when-elided" type="xs:boolean" use="optional" />
         <xs:anyAttribute processContents="lax" />
       </xs:restriction>
     </xs:complexContent>

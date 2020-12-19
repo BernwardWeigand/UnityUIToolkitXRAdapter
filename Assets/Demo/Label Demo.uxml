@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label text="Normal&#10;" display-tooltip-when-elided="true" style="width: 100%; height: 50%; font-size: 80%; -unity-text-align: middle-center; color: rgba(255, 255, 255, 255);" />
+    <UIToolkitXRAdapter.AngularSizeText.AngularSizeLabel text="Resizing&#10;" size-in-arc-minutes="120" style="font-size: 30%; -unity-text-align: middle-center; color: rgb(255, 255, 0); width: 100%; height: 50%;" />
+</ui:UXML>
