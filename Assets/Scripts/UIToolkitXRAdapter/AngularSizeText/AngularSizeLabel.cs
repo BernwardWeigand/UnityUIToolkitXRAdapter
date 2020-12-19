@@ -1,11 +1,16 @@
 ﻿using UIToolkitXRAdapter.Utils;
+using UnityEngine;
 using UnityEngine.UIElements;
+using static UIToolkitXRAdapter.AngularSizeText.AngularSizeTextUtils;
 using static UnityEngine.Mathf;
+using static UnityEngine.UIElements.Visibility;
 using static UnityEngine.UIElements.VisualElement.MeasureMode;
 
 namespace UIToolkitXRAdapter.AngularSizeText {
     public sealed class AngularSizeLabel : Label, IAngularSizeText<AngularSizeLabel> {
         private float _angularHeight;
+
+        private bool _cullWhenCannotExpand;
 
         private Length? _initialFontHeight;
 
@@ -15,17 +20,23 @@ namespace UIToolkitXRAdapter.AngularSizeText {
         public new class UxmlFactory : UxmlFactory<AngularSizeLabel, UxmlTraits> { }
 
         public new class UxmlTraits : TextElement.UxmlTraits {
-            private UxmlFloatAttributeDescription m_TextSize = new UxmlFloatAttributeDescription {
+            private UxmlFloatAttributeDescription m_angularTextSize = new UxmlFloatAttributeDescription {
                 name = "size-in-arc-minutes",
                 defaultValue = 90f
+            };
+
+            private UxmlBoolAttributeDescription m_cullWhenCannotExpand = new UxmlBoolAttributeDescription {
+                name = "cull-when-cannot-expand",
+                defaultValue = false
             };
 
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc) {
                 base.Init(ve, bag, cc);
                 var angularSizeLabel = (AngularSizeLabel) ve;
-                angularSizeLabel._angularHeight = m_TextSize.GetValueFromBag(bag, cc);
+                angularSizeLabel._angularHeight = m_angularTextSize.GetValueFromBag(bag, cc);
+                angularSizeLabel._cullWhenCannotExpand = m_cullWhenCannotExpand.GetValueFromBag(bag, cc);
 
-                var initialFontHeight = AngularSizeTextUtils.ExtractFontSize(bag);
+                var initialFontHeight = ExtractFontSize(bag);
                 if (initialFontHeight.HasValue) {
                     angularSizeLabel._initialFontHeight = initialFontHeight.Value;
                 }
@@ -48,15 +59,27 @@ namespace UIToolkitXRAdapter.AngularSizeText {
 
             if (_initialFontHeight.HasValue && _initialFontHeight.Value.IsHigherThan(newDimensions.y, resolvedStyle) &&
                 angularHeightInPixel < currentFontHeight) {
-                // this shouldn't be smaller
+                // this shouldn't shrink
                 return;
             }
 
-            if ((AngularSizeTextUtils.IsHigherThan(newDimensions.y, resolvedStyle) ||
-                 AngularSizeTextUtils.IsWiderThan(newDimensions.x, resolvedStyle)) &&
-                angularHeightInPixel > currentFontHeight) {
-                // this shouldn't be larger
-                return;
+            var visibility = resolvedStyle.visibility;
+            if (IsHigherThan(newDimensions.y, resolvedStyle) || IsWiderThan(newDimensions.x, resolvedStyle)) {
+                if (_cullWhenCannotExpand && visibility.Equals(Visible)) {
+                    // this too far way
+                    style.visibility = Hidden;
+                    return;
+                }
+
+                if (angularHeightInPixel > currentFontHeight) {
+                    // this shouldn't expand
+                    return;
+                }
+            }
+
+            if (angularHeightInPixel < currentFontHeight && _cullWhenCannotExpand && visibility.Equals(Hidden)) {
+                // this can be displayed now
+                style.visibility = Visible;
             }
 
             style.fontSize = new StyleLength(angularHeightInPixel);
