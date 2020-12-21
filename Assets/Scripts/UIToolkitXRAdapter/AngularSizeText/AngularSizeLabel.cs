@@ -1,5 +1,6 @@
-﻿using UIToolkitXRAdapter.Utils;
-using UnityEngine;
+﻿using System;
+using System.Reflection;
+using UIToolkitXRAdapter.Utils;
 using UnityEngine.UIElements;
 using static UIToolkitXRAdapter.AngularSizeText.AngularSizeTextUtils;
 using static UnityEngine.Mathf;
@@ -16,6 +17,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
 
         public new static readonly string ussClassName = "angular-size-label";
 
+        private Lazy<MethodInfo> _repaint = new Lazy<MethodInfo>(() =>
+            typeof(TextElement).GetMethod("IncrementVersion", BindingFlags.Instance | BindingFlags.NonPublic));
 
         public new class UxmlFactory : UxmlFactory<AngularSizeLabel, UxmlTraits> { }
 
@@ -83,11 +86,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             }
 
             style.fontSize = new StyleLength(angularHeightInPixel);
-
-            // This re-assignment is necessary to trigger the re-render event, thank you Unity!
-            var old = text;
-            text = string.Empty;
-            text = old;
+            // TODO may use the VersionChangeType enum for the arg values
+            _repaint.Value.Invoke(this, new object[] {8 | 2048});
         }
 
         AngularSizeLabel IAngularSizeText<AngularSizeLabel>.AsVisualElement() => this;
