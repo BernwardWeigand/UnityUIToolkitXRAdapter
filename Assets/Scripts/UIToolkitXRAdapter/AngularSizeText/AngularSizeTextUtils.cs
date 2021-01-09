@@ -1,13 +1,83 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using CoreLibrary;
 using JetBrains.Annotations;
 using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Mathf;
+using static UnityEngine.UIElements.Visibility;
+using static UnityEngine.UIElements.VisualElement.MeasureMode;
 
 namespace UIToolkitXRAdapter.AngularSizeText {
     internal static class AngularSizeTextUtils {
+        internal static Length? ExtractFontSize(IUxmlAttributes uxmlAttributes) {
+            var stylesDictionary = ToStylesDictionary(uxmlAttributes);
+            return stylesDictionary == null ? (Length?) null : ExtractFontSize(stylesDictionary);
+        }
+
+        /// <summary>
+        /// TODO add docs
+        /// </summary>
+        /// <remarks>
+        /// TODO when unity supports default implementation of interfaces move it to <see cref="IAngularSizeText{T}"/>>
+        /// </remarks>
+        /// <param name="element"></param>
+        /// <param name="distanceToCamera"></param>
+        /// <param name="pixelPerMeter"></param>
+        /// <typeparam name="T"></typeparam>
+        internal static void ResizeTextByTrigonometricRatios<T>(this IAngularSizeText<T> element,
+            float distanceToCamera, float pixelPerMeter) where T : TextElement {
+            // TODO may refactor towards https://en.wikipedia.org/wiki/Law_of_cosines#Applications
+            // see https://en.wikipedia.org/wiki/Trigonometry#Trigonometric_ratios
+            var angularHeightInPixel =
+                distanceToCamera * Tan(Deg2Rad * (element.AngularTextHeight / 60)) / pixelPerMeter;
+
+            var textElement = element.AsTextElement();
+
+            var resolvedStyle = textElement.resolvedStyle;
+
+            var currentFontHeight = resolvedStyle.fontSize;
+            var newDimensions = textElement.MeasureTextSize(textElement.text, resolvedStyle.width, AtMost,
+                angularHeightInPixel, AtMost);
+
+            var initialFontHeight = element.InitialFontHeight;
+            if (initialFontHeight.HasValue && initialFontHeight.Value.IsHigherThan(newDimensions.y, resolvedStyle) &&
+                angularHeightInPixel < currentFontHeight) {
+                // this shouldn't shrink
+                return;
+            }
+
+            var visibility = resolvedStyle.visibility;
+            if (IsHigherThan(newDimensions.y, resolvedStyle) || IsWiderThan(newDimensions.x, resolvedStyle)) {
+                if (element.HasToBeCulledWhenCannotExpand && visibility.Equals(Visible)) {
+                    // this too far way
+                    textElement.style.visibility = Hidden;
+                    return;
+                }
+
+                if (angularHeightInPixel > currentFontHeight) {
+                    // this shouldn't expand
+                    return;
+                }
+            }
+
+            if (angularHeightInPixel < currentFontHeight && element.HasToBeCulledWhenCannotExpand &&
+                visibility.Equals(Hidden)) {
+                // this can be displayed now
+                textElement.style.visibility = Visible;
+            }
+
+            textElement.style.fontSize = new StyleLength(angularHeightInPixel);
+            // TODO may use the VersionChangeType enum for the arg values
+            Repaint.Value.Invoke(element, new object[] {8 | 2048});
+        }
+
+        private static readonly Lazy<MethodInfo> Repaint = new Lazy<MethodInfo>(() =>
+            typeof(TextElement).GetMethod("IncrementVersion", BindingFlags.Instance | BindingFlags.NonPublic));
+
         private const string Pixel = "px";
         private const string Percent = "%";
 
@@ -60,11 +130,6 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             return new Length(lengthSize, lengthUnit);
         }
 
-        internal static Length? ExtractFontSize(IUxmlAttributes uxmlAttributes) {
-            var stylesDictionary = ToStylesDictionary(uxmlAttributes);
-            return stylesDictionary == null ? (Length?) null : ExtractFontSize(stylesDictionary);
-        }
-
         private static Length ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) {
             var fontSize = ExtractLength(stylesAsDict, "font-size");
 
@@ -72,13 +137,13 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 return fontSize.Value;
             }
 
-            throw new UnityException($"Could not read font size for an {nameof(IAngularSizeText<VisualElement>)}.");
+            throw new UnityException($"Could not read font size for an {nameof(IAngularSizeText<TextElement>)}.");
         }
 
-        internal static bool IsHigherThan(float heightInPixel, IResolvedStyle resolvedStyle) =>
+        private static bool IsHigherThan(float heightInPixel, IResolvedStyle resolvedStyle) =>
             heightInPixel.IsNearlyOrLargerThan(resolvedStyle.ContentHeight());
 
-        internal static bool IsWiderThan(float widthInPixel, IResolvedStyle resolvedStyle) =>
+        private static bool IsWiderThan(float widthInPixel, IResolvedStyle resolvedStyle) =>
             widthInPixel.IsNearlyOrLargerThan(resolvedStyle.ContentWidth());
     }
 }

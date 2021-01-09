@@ -54,8 +54,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             return !canvasBounds.height.IsNearly(uiBounds.height) || !canvasBounds.width.IsNearly(uiBounds.width);
         }
 
-        private void Resize<T>(IAngularSizeText<T> angularSizeText) where T : VisualElement {
-            var layout = angularSizeText.AsVisualElement().layout;
+        private void Resize<T>(IAngularSizeText<T> angularSizeText) where T : TextElement {
+            var layout = angularSizeText.AsTextElement().layout;
             var leftDistance = new List<Vector3> {
                 CalculateCornerWorldPosition(new Vector2(layout.xMin, layout.yMin)),
                 CalculateCornerWorldPosition(new Vector2(layout.xMin, layout.yMax))
@@ -64,7 +64,7 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 CalculateCornerWorldPosition(new Vector2(layout.xMax, layout.yMin)),
                 CalculateCornerWorldPosition(new Vector2(layout.xMax, layout.yMax))
             }.Select(DistanceToCamera).Min();
-            angularSizeText.ResizeByTrigonometricRatios(rightDistance.Max(leftDistance), _panel.lossyScale.y);
+            angularSizeText.ResizeTextByTrigonometricRatios(rightDistance.Max(leftDistance), _panel.lossyScale.y);
         }
 
         private float DistanceToCamera(Vector3 worldPosition) =>

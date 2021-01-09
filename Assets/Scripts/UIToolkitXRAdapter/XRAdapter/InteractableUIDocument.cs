@@ -1,4 +1,3 @@
-using System;
 using CoreLibrary;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -23,8 +22,6 @@ namespace UIToolkitXRAdapter.XRAdapter {
             AssignComponent(out _rectTransform);
             _collider = gameObject.AddComponent<BoxCollider>();
         }
-
-        internal class CameraMovedArgs : EventArgs { }
 
         private void Update() {
             var pivotOffset = (new Vector2(0.5f, 0.5f) - _rectTransform.pivot);
