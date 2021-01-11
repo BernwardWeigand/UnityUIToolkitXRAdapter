@@ -40,6 +40,7 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             }
 
             _document.rootVisualElement.Query<AngularSizeLabel>().Build().ForEach(Resize);
+            _document.rootVisualElement.Query<AngularSizeButton>().Build().ForEach(Resize);
         }
 
         private bool SizeIsCorrupted() {

@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <UIToolkitXRAdapter.AngularSizeText.AngularSizeButton text="Push the button" style="width: 90%; height: 38%; font-size: 30%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; border-left-width: 10px; border-right-width: 10px; border-top-width: 10px; border-bottom-width: 10px;" />
+    <UIToolkitXRAdapter.AngularSizeText.AngularSizeLabel text="You puhsed it :)" name="message" style="visibility: hidden; width: 100%; height: 48%; -unity-text-align: middle-center; font-size: 30%; color: rgba(255, 255, 255, 255);" />
+</ui:UXML>

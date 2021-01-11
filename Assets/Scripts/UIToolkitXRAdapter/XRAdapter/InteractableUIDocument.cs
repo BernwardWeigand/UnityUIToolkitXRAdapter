@@ -12,8 +12,6 @@ namespace UIToolkitXRAdapter.XRAdapter {
     /// see this module's docs for which other components are also necessary. 
     [RequireComponent(typeof(UIDocument), typeof(RectTransform))]
     public class InteractableUIDocument : BaseBehaviour {
-        public GameObject GameObject => gameObject;
-        public bool CanInteract => isActiveAndEnabled;
 
         private BoxCollider _collider;
         private RectTransform _rectTransform;
