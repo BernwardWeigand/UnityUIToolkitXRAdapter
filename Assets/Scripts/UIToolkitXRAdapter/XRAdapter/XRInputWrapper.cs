@@ -1,4 +1,3 @@
-using System;
 using CoreLibrary;
 using UIToolkitXRAdapter.Utils;
 using UnityEngine;
@@ -9,7 +8,6 @@ using static UnityEngine.XR.CommonUsages;
 
 namespace UIToolkitXRAdapter.XRAdapter {
     [RequireComponent(typeof(RectTransform))]
-    [RequireComponent(typeof(XRSimpleInteractable))]
     public class XRInputWrapper : InputWrapper {
         private RectTransform _rectTransform;
         private XRInputWrapperEventSystem _xrInputWrapperEventSystem;
@@ -18,7 +16,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             _rectTransform = this.AsOrThrow<RectTransform>();
             _rectTransform.pivot = new Vector2(0, 1);
             var xrInputWrapperEventSystem = FindObjectOfType<XRInputWrapperEventSystem>();
-            if (xrInputWrapperEventSystem.IsNull()) {
+            if (UtilityExtensions.IsNull(xrInputWrapperEventSystem)) {
                 throw new UnityException(
                     $"There has to be an {typeof(XRInputWrapperEventSystem)} component in the hierarchy to use the " +
                     $"{typeof(XRInputWrapper)}");
@@ -33,6 +31,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
         public override bool mousePresent => PrimaryController.IsNotNull() && PrimaryController.isActiveAndEnabled;
 
         private InputDevice PrimaryInputDevice => PrimaryController.inputDevice;
+
+        /// <inheritdoc cref="InputWrapper.mouseScrollDelta"/>
+        /// <remarks>
+        /// TODO may add a deadzone
+        /// TODO check inversion of y axis 
+        /// </remarks>
+        public override Vector2 mouseScrollDelta => PrimaryInputDevice.GetFeatureOrThrow(primary2DAxis);
 
         private bool PrimaryTriggerIsDown => PrimaryInputDevice.GetFeatureOrThrow(triggerButton);
         private bool PrimaryGripIsDown => PrimaryInputDevice.GetFeatureOrThrow(gripButton);
@@ -66,8 +71,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
                     _thumbWasPressed = true;
                     return true;
-                default:
-                    return false;
+                default: return false;
             }
         }
 
@@ -95,8 +99,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
                     _thumbWasPressed = false;
                     return true;
-                default:
-                    return false;
+                default: return false;
             }
         }
 
@@ -111,33 +114,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
             _ => false
         };
 
-        private XRRayInteractor PrimaryRayInteractor => PrimaryController.AsOrThrow<XRRayInteractor>();
-
-        private void Update() {
-            var firstHitPosition = PrimaryRayInteractor.GetFirstHitPosition();
-            if (firstHitPosition.HasValue) {
-                var local = _rectTransform.InverseTransformPoint(firstHitPosition.Value).xy();
-                
-                
-            }
-        }
-
-        public override Vector2 mousePosition {
-            get {
-                // PrimaryRayInteractor.TryGetHitInfo(out var hitPosition, out var hitNormal, out var hitPositionInLine,
-                //     out var hitIsValidTarget);
-                //         if (UserInput.Actions.PointerTo is Vector3 t) {
-                //             var res = Utils.Position.FromGlobal(t).RelativeTo(_rectTransform);
-                //             // With a pivot of (0,1) we need to flip the y value because it is calculated incorrectly
-                //             return res.xy().WithY(y => -y);
-                //         }
-
-                // the controller points towards the nirvana
-                return Vector2.negativeInfinity;
-            }
-        }
-
-        // /// <inheritdoc cref="InputWrapper.mouseScrollDelta"/>
-        // public override Vector2 mouseScrollDelta => UserInput.ActiveHandler.ScrollDelta.WithY(y => -y);
+        public override Vector2 mousePosition => _xrInputWrapperEventSystem.CurrentPointerHit
+            // With a pivot of (0,1) we need to invert the y value because it is calculated incorrectly
+            .Bind(firstHit => firstHit.HitLocalPosition(_rectTransform).Map(Extensions.InvertY))
+            // The controller points towards the nirvana
+            // TODO may use Vector2.zero
+            .IfNone(Vector2.negativeInfinity);
     }
 }

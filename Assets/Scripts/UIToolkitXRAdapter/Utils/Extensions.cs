@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using CoreLibrary;
 using JetBrains.Annotations;
+using LanguageExt;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
@@ -45,17 +45,17 @@ namespace UIToolkitXRAdapter.Utils {
 
         /// <inheritdoc cref="AsOrThrow{T}(GameObject, Search)"/>
         [NotNull]
-        public static T AsOrThrow<T>(this Component comp, Search where = Search.InObjectOnly) where T : class =>
+        internal static T AsOrThrow<T>(this Component comp, Search where = Search.InObjectOnly) where T : class =>
             comp.gameObject.AsOrThrow<T>(where);
 
         /// <param name="where">Optional search scope if the object itself does not have the component.</param>
         /// <typeparam name="T">The type of the component to find.</typeparam>
         /// <returns>The first component of type T found in the search scope or throws if not found.</returns>
         [NotNull]
-        public static T AsOrThrow<T>(this GameObject go, Search where = Search.InObjectOnly) where T : class {
+        private static T AsOrThrow<T>(this GameObject go, Search where = Search.InObjectOnly) where T : class {
             var res = go.As<T>(where);
 
-            if (res.IsNull()) {
+            if (UtilityExtensions.IsNull(res)) {
                 throw new MissingComponentException($"The component of type {typeof(T)} could not be found on {go}");
             }
 
@@ -64,9 +64,18 @@ namespace UIToolkitXRAdapter.Utils {
         }
 
         [Pure]
-        public static bool GetFeatureOrThrow(this InputDevice device, InputFeatureUsage<bool> featureUsage) {
-            if (!device.TryGetFeatureValue(featureUsage, out var value)) {
-                throw new UnityException($"Could not get feature {featureUsage.name} from {device.name}.");
+        public static bool GetFeatureOrThrow(this InputDevice device, InputFeatureUsage<bool> feature) {
+            if (!device.TryGetFeatureValue(feature, out var value)) {
+                throw new UnityException($"Could not get bool feature {feature.name} from {device.name}.");
+            }
+
+            return value;
+        }
+
+        [Pure]
+        public static Vector2 GetFeatureOrThrow(this InputDevice device, InputFeatureUsage<Vector2> feature) {
+            if (!device.TryGetFeatureValue(feature, out var value)) {
+                throw new UnityException($"Could not get Vector2 feature {feature.name} from {device.name}.");
             }
 
             return value;
@@ -77,16 +86,23 @@ namespace UIToolkitXRAdapter.Utils {
             return !Util.IsNull(value);
         }
 
-        public static Vector3? GetFirstHitPosition(this XRRayInteractor xrRayInteractor) =>
-            xrRayInteractor.GetCurrentRaycastHit(out var firstHit) ? (Vector3?) firstHit.point : null;
+        [Pure]
+        internal static Option<RaycastHit> FirstHit(this XRRayInteractor xrRayInteractor) =>
+            xrRayInteractor.GetCurrentRaycastHit(out var firstHit) ? firstHit : Option<RaycastHit>.None;
 
-        public static Vector2? LocalPositionFromWorldPosition(this RectTransform rectTransform, Vector3 world) {
-            Vector3[] corners = {Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero};
-            rectTransform.GetWorldCorners(corners);
-            corners.ForEach(v => Debug.Log(v));
-            var b = new Bounds();
-            // TODO add check if in bounds
-            return rectTransform.InverseTransformPoint(world).xy();
-        }
+        [Pure]
+        private static Vector2 WorldToLocalPosition(this RectTransform rectTransform, Vector3 world) =>
+            rectTransform.InverseTransformPoint(world);
+
+        [Pure]
+        internal static Option<Vector2> HitLocalPosition(this RaycastHit hit, RectTransform rect) =>
+            rect.transform.Equals(hit.transform) ? rect.WorldToLocalPosition(hit.point) : Option<Vector2>.None;
+
+        [Pure]
+        internal static Vector2 InvertY(this Vector2 vector2) => vector2.WithY(y => -y);
+
+        [Pure]
+        internal static Option<T> AsOption<T>(this GameObject go, Search where = Search.InObjectOnly) where T : class
+            => go.As<T>(where) ?? Option<T>.None;
     }
 }

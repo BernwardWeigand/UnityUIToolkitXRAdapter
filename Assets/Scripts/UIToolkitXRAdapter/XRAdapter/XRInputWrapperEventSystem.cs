@@ -4,17 +4,17 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using CoreLibrary;
-using JetBrains.Annotations;
+using LanguageExt;
+using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static System.Reflection.BindingFlags;
-using static UnityEngine.XR.InputDeviceCharacteristics;
 using PointerType = UnityEngine.UIElements.PointerType;
 
 namespace UIToolkitXRAdapter.XRAdapter {
-    /// Currently, as of com.unity.ui version 1.0.0preview6, the <see cref="EventSystem"/> does not properly use
+    /// Currently, as of com.unity.ui version 1.0.0preview13, the <see cref="EventSystem"/> does not properly use
     /// the methods of the <see cref="InputWrapper"/>, making it impossible to abstract the input given to UI Toolkit ui.
     ///
     /// This class is an alternative implementation of the <see cref="EventSystem"/>that "shadows"
@@ -26,6 +26,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
     /// as it can handle the interaction and events for any amount of ui documents. 
     public class XRInputWrapperEventSystem : EventSystem {
         public XRController PrimaryController => primaryHand == XRNode.RightHand ? controllerRight : controllerLeft;
+
+        public Option<RaycastHit> CurrentPointerHit => PrimaryController.AsOrThrow<XRRayInteractor>().FirstHit();
 
         public XRNode primaryHand = XRNode.RightHand;
 
@@ -99,59 +101,64 @@ namespace UIToolkitXRAdapter.XRAdapter {
         /// re-implement it, but alter specific parts to our needs.
         ///
         /// IF THE EVENT SYSTEM USES A DIFFERENT EVENT IN THE FUTURE, THAT HAS TO BE SHADOWED INSTEAD.
-        // private void Update() {
-        //     
-        //     // Note DG: This code determines the UIDocument that is currently pointed at. This needs to be
-        //     // calculated every frame, as the user may point to a different UI Document between frames.
-        //     
-        //     var currentUI = UserInput.Actions.PointerTarget.IfNotNull(t => t
-        //         .As<UIDocument>(Search.InChildren).IfNotNull(doc => doc.isActiveAndEnabled ? doc : null)
-        //     );
-        //     var currentInputWrapper = currentUI.IfNotNull(ui => ui.As<InputWrapper>());
-        //     var currentUiRootElement = currentUI.IfNotNull(ui => ui.rootVisualElement);
-        //     
-        //     // Re-implementation of the first 2 lines of the event system's update, which are fine
-        //     if (!isAppFocused && callMethodWithReturnValue<bool>("ShouldIgnoreEventsOnAppNotFocused"))
-        //         return;
-        //     
-        //     if(currentInputWrapper != null) {
-        //         // Instead of calling SendImGuiEvents like in the base class, we have our own implementation
-        //         // that properly uses the input events from the InputWrapper
-        //         
-        //         makeAndSendPointerEvent<PointerMoveEvent>(currentUiRootElement, currentInputWrapper.mousePosition);
-        //     
-        //         var mouseButtons = checkMouseButtons(currentInputWrapper.GetMouseButton);
-        //         for (int i = 0; i < mouseButtons.Length; i++) {
-        //             if (currentInputWrapper.GetMouseButtonDown(i)) {
-        //                 // Set the bit at the index of i
-        //                 _currentlyPressedMouseButtonsBitfield |= 1 << i;
-        //     
-        //                 makeAndSendPointerEvent<PointerDownEvent>(currentUiRootElement, currentInputWrapper.mousePosition);
-        //                 makeAndSendMouseEvent<MouseDownEvent>(currentInputWrapper, currentUiRootElement, i);
-        //             } else if (currentInputWrapper.GetMouseButtonUp(i)) {
-        //                 // Un-set the bit at the index of i
-        //                 _currentlyPressedMouseButtonsBitfield &= ~(1 << i);
-        //     
-        //                 makeAndSendPointerEvent<PointerUpEvent>(currentUiRootElement, currentInputWrapper.mousePosition);
-        //                 makeAndSendMouseEvent<MouseUpEvent>(currentInputWrapper, currentUiRootElement, i);
-        //                 // Send ClickEvent only on leftClickUp
-        //                 if (i==0) makeAndSendPointerEvent<ClickEvent>(currentUiRootElement, currentInputWrapper.mousePosition);
-        //             }
-        //         }
-        //     
-        //         var scrollDelta = currentInputWrapper.mouseScrollDelta;
-        //         if (scrollDelta.y > float.Epsilon || scrollDelta.y < -float.Epsilon) {
-        //             var mouseEvent = MouseEventBase<WheelEvent>.GetPooled();
-        //             setPropertyOf(mouseEvent, "mousePosition", currentInputWrapper.mousePosition);
-        //             setPropertyOf(mouseEvent, "delta", (Vector3) scrollDelta);
-        //             
-        //             currentUiRootElement.SendEvent(mouseEvent);
-        //         }
-        //         sendFocusBasedIMGUIEvents(currentUiRootElement);
-        //         
-        //         sendInputEvents(currentInputWrapper, currentUiRootElement);
-        //     }
-        // }
+        private void Update() {
+            // Re-implementation of the first 2 lines of the event system's update, which are fine
+            if (!isAppFocused && callMethodWithReturnValue<bool>("ShouldIgnoreEventsOnAppNotFocused")) {
+                return;
+            }
+
+            // Note DG: This code determines the UIDocument that is currently pointed at. This needs to be
+            // calculated every frame, as the user may point to a different UI Document between frames.
+            var currentUIOption = CurrentPointerHit
+                .Bind(hit => hit.transform.gameObject.AsOption<UIDocument>(Search.InChildren))
+                .Where(doc => doc.isActiveAndEnabled)
+                .IfSome(currentUI => {
+                    var currentInputWrapper = currentUI.AsOrThrow<InputWrapper>();
+                    var currentUiRootElement = currentUI.rootVisualElement;
+
+                    // Instead of calling SendImGuiEvents like in the base class, we have our own implementation
+                    // that properly uses the input events from the InputWrapper
+
+                    makeAndSendPointerEvent<PointerMoveEvent>(currentUiRootElement, currentInputWrapper.mousePosition);
+
+                    var mouseButtons = checkMouseButtons(currentInputWrapper.GetMouseButton);
+                    for (int i = 0; i < mouseButtons.Length; i++) {
+                        if (currentInputWrapper.GetMouseButtonDown(i)) {
+                            // Set the bit at the index of i
+                            _currentlyPressedMouseButtonsBitfield |= 1 << i;
+
+                            makeAndSendPointerEvent<PointerDownEvent>(currentUiRootElement,
+                                currentInputWrapper.mousePosition);
+                            makeAndSendMouseEvent<MouseDownEvent>(currentInputWrapper, currentUiRootElement, i);
+                        }
+                        else if (currentInputWrapper.GetMouseButtonUp(i)) {
+                            // Un-set the bit at the index of i
+                            _currentlyPressedMouseButtonsBitfield &= ~(1 << i);
+
+                            makeAndSendPointerEvent<PointerUpEvent>(currentUiRootElement,
+                                currentInputWrapper.mousePosition);
+                            makeAndSendMouseEvent<MouseUpEvent>(currentInputWrapper, currentUiRootElement, i);
+                            // Send ClickEvent only on leftClickUp
+                            if (i == 0)
+                                makeAndSendPointerEvent<ClickEvent>(currentUiRootElement,
+                                    currentInputWrapper.mousePosition);
+                        }
+                    }
+
+                    var scrollDelta = currentInputWrapper.mouseScrollDelta;
+                    if (scrollDelta.y > float.Epsilon || scrollDelta.y < -float.Epsilon) {
+                        var mouseEvent = MouseEventBase<WheelEvent>.GetPooled();
+                        setPropertyOf(mouseEvent, "mousePosition", currentInputWrapper.mousePosition);
+                        setPropertyOf(mouseEvent, "delta", (Vector3) scrollDelta);
+
+                        currentUiRootElement.SendEvent(mouseEvent);
+                    }
+
+                    sendFocusBasedIMGUIEvents(currentUiRootElement);
+
+                    sendInputEvents(currentInputWrapper, currentUiRootElement);
+                });
+        }
 
         // uses old IMGUI events to send keyboard inputs
         private void sendFocusBasedIMGUIEvents(VisualElement currentRootElement) {
