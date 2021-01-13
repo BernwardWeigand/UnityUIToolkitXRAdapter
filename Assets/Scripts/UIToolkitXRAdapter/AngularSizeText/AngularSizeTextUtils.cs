@@ -71,12 +71,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             }
 
             textElement.style.fontSize = new StyleLength(angularHeightInPixel);
-            // TODO may use the VersionChangeType enum for the arg values
-            Repaint.Value.Invoke(element, new object[] {8 | 2048});
+            textElement.MarkDirtyRepaint();
         }
-
-        private static readonly Lazy<MethodInfo> Repaint = new Lazy<MethodInfo>(() =>
-            typeof(TextElement).GetMethod("IncrementVersion", BindingFlags.Instance | BindingFlags.NonPublic));
 
         private const string Pixel = "px";
         private const string Percent = "%";

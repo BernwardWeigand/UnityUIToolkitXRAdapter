@@ -1,5 +1,4 @@
-﻿using System;
-using UIToolkitXRAdapter.AngularSizeText;
+﻿using UIToolkitXRAdapter.AngularSizeText;
 using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;

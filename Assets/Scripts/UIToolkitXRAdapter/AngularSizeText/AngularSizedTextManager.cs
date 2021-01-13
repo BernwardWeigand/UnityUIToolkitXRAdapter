@@ -39,8 +39,8 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 throw new UnityException("The canvas and the UI Document have to have the same size!");
             }
 
-            _document.rootVisualElement.Query<AngularSizeLabel>().Build().ForEach(Resize);
-            _document.rootVisualElement.Query<AngularSizeButton>().Build().ForEach(Resize);
+            _document.rootVisualElement.Query<AngularSizeButton>().Visible().Build().ForEach(ResizeTextElement);
+            _document.rootVisualElement.Query<AngularSizeLabel>().Visible().Build().ForEach(ResizeTextElement);
         }
 
         private bool SizeIsCorrupted() {
@@ -55,7 +55,7 @@ namespace UIToolkitXRAdapter.AngularSizeText {
             return !canvasBounds.height.IsNearly(uiBounds.height) || !canvasBounds.width.IsNearly(uiBounds.width);
         }
 
-        private void Resize<T>(IAngularSizeText<T> angularSizeText) where T : TextElement {
+        private void ResizeTextElement<T>(IAngularSizeText<T> angularSizeText) where T : TextElement {
             var layout = angularSizeText.AsTextElement().layout;
             var leftDistance = new List<Vector3> {
                 CalculateCornerWorldPosition(new Vector2(layout.xMin, layout.yMin)),

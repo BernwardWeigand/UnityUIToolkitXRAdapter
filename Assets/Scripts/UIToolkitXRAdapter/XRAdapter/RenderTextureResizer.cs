@@ -40,6 +40,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             AssignComponent(out _document);
             AssignComponent(out _rectTransform);
             AssignComponent(out _image);
+            _document.panelSettings.clearColor = true;
             _initialized = true;
         }
 
@@ -53,7 +54,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         private void Update() {
-            // Note DG: We cannot use OnRectTransformDimensionChanged event, because it is called too often.
+            // Note: We cannot use OnRectTransformDimensionChanged event, because it is called too often.
             // Instead, we have to manually check if the dimensions changed
             if (!_renderScale.IsNearly(_currentRenderScale) 
                 || !_lastHeight.IsNearly(_rectTransform.rect.height) 

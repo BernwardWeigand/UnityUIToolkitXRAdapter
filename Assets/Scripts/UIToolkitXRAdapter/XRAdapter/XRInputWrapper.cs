@@ -34,10 +34,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         /// <inheritdoc cref="InputWrapper.mouseScrollDelta"/>
         /// <remarks>
-        /// TODO may add a deadzone
+        /// TODO check implementation
         /// TODO check inversion of y axis 
+        /// TODO may add a deadzone
         /// </remarks>
-        public override Vector2 mouseScrollDelta => PrimaryInputDevice.GetFeatureOrThrow(primary2DAxis);
+        public override Vector2 mouseScrollDelta => PrimaryInputDevice.GetFeatureOrThrow(primary2DAxis).InvertY();
 
         private bool PrimaryTriggerIsDown => PrimaryInputDevice.GetFeatureOrThrow(triggerButton);
         private bool PrimaryGripIsDown => PrimaryInputDevice.GetFeatureOrThrow(gripButton);
@@ -118,7 +119,6 @@ namespace UIToolkitXRAdapter.XRAdapter {
             // With a pivot of (0,1) we need to invert the y value because it is calculated incorrectly
             .Bind(firstHit => firstHit.HitLocalPosition(_rectTransform).Map(Extensions.InvertY))
             // The controller points towards the nirvana
-            // TODO may use Vector2.zero
             .IfNone(Vector2.negativeInfinity);
     }
 }
