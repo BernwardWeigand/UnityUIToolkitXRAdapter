@@ -39,9 +39,13 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 throw new UnityException("The canvas and the UI Document have to have the same size!");
             }
 
-            _document.rootVisualElement.Query<AngularSizeButton>().Visible().Build().ForEach(ResizeTextElement);
-            _document.rootVisualElement.Query<AngularSizeLabel>().Visible().Build().ForEach(ResizeTextElement);
+            // TODO may refactor it if Code becomes more complex
+            _document.rootVisualElement.Query<AngularSizeButton>().Where(CanResize).Build().ForEach(ResizeTextElement);
+            _document.rootVisualElement.Query<AngularSizeLabel>().Where(CanResize).Build().ForEach(ResizeTextElement);
         }
+
+        private static bool CanResize<T>(IAngularSizeText<T> angularSizeText) where T : TextElement =>
+            angularSizeText.HasToBeCulledWhenCannotExpand || angularSizeText.AsTextElement().visible;
 
         private bool SizeIsCorrupted() {
             var canvasBounds = _canvasRect.rect;

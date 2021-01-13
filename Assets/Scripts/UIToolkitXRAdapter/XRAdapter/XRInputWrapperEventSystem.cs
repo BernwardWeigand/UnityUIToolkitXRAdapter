@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Reflection;
 using CoreLibrary;
 using LanguageExt;
@@ -109,8 +107,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
             // Note DG: This code determines the UIDocument that is currently pointed at. This needs to be
             // calculated every frame, as the user may point to a different UI Document between frames.
-            var currentUIOption = CurrentPointerHit
-                .Bind(hit => hit.transform.gameObject.AsOption<UIDocument>(Search.InChildren))
+            CurrentPointerHit.Bind(hit => hit.transform.gameObject.AsOption<UIDocument>(Search.InChildren))
                 .Where(doc => doc.isActiveAndEnabled)
                 .IfSome(currentUI => {
                     var currentInputWrapper = currentUI.AsOrThrow<InputWrapper>();

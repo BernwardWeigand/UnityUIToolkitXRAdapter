@@ -72,6 +72,9 @@ namespace UIToolkitXRAdapter.Utils {
             return value;
         }
 
+        public static Option<bool> TryGetFeatureValue(this InputDevice device, InputFeatureUsage<bool> feature) =>
+            !device.TryGetFeatureValue(feature, out var value) ? Option<bool>.None : value;
+
         [Pure]
         public static Vector2 GetFeatureOrThrow(this InputDevice device, InputFeatureUsage<Vector2> feature) {
             if (!device.TryGetFeatureValue(feature, out var value)) {
@@ -100,6 +103,10 @@ namespace UIToolkitXRAdapter.Utils {
 
         [Pure]
         internal static Vector2 InvertY(this Vector2 vector2) => vector2.WithY(y => -y);
+
+        [Pure]
+        internal static Option<T> AsOption<T>(this Component comp, Search where = Search.InObjectOnly) where T : class
+            => comp.As<T>(where) ?? Option<T>.None;
 
         [Pure]
         internal static Option<T> AsOption<T>(this GameObject go, Search where = Search.InObjectOnly) where T : class

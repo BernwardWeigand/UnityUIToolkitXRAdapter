@@ -1,4 +1,5 @@
-﻿using UIToolkitXRAdapter.AngularSizeText;
+﻿using LanguageExt;
+using UIToolkitXRAdapter.AngularSizeText;
 using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,9 +7,11 @@ using UnityEngine.UIElements;
 namespace Demo.UIs {
     public class ButtonScript : MonoBehaviour {
         private void Awake() {
-            var root = this.AsOrThrow<UIDocument>().rootVisualElement;
-            var label = root.Q<AngularSizeLabel>();
-            root.Q<AngularSizeButton>().clicked += () => label.visible = !label.visible;
+            this.AsOption<UIDocument>().Map(doc => doc.rootVisualElement).IfSome(root => {
+                var label = root.Q<AngularSizeLabel>();
+                Option<AngularSizeButton> buttonOption = root.Q<AngularSizeButton>();
+                buttonOption.IfSome(button => button.clicked += () => label.visible = !label.visible);
+            });
         }
     }
 }
