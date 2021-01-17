@@ -39,7 +39,7 @@ namespace UIToolkitXRAdapter.AngularSizeText {
                 throw new UnityException("The canvas and the UI Document have to have the same size!");
             }
 
-            // TODO may refactor it if Code becomes more complex
+            // TODO may refactor it towards reflection if code becomes more complex
             _document.rootVisualElement.Query<AngularSizeButton>().Where(CanResize).Build().ForEach(ResizeTextElement);
             _document.rootVisualElement.Query<AngularSizeLabel>().Where(CanResize).Build().ForEach(ResizeTextElement);
         }
