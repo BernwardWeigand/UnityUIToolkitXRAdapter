@@ -108,7 +108,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             // Note DG: This code determines the UIDocument that is currently pointed at. This needs to be
             // calculated every frame, as the user may point to a different UI Document between frames.
             CurrentPointerHit.Bind(hit => hit.transform.gameObject.AsOption<UIDocument>(Search.InChildren))
-                .Where(doc => doc.isActiveAndEnabled)
+                .Filter(doc => doc.isActiveAndEnabled)
                 .IfSome(currentUI => {
                     var currentInputWrapper = currentUI.AsOrThrow<InputWrapper>();
                     var currentUiRootElement = currentUI.rootVisualElement;

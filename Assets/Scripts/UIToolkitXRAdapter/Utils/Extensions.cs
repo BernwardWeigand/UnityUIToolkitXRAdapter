@@ -3,45 +3,17 @@ using CoreLibrary;
 using JetBrains.Annotations;
 using LanguageExt;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 namespace UIToolkitXRAdapter.Utils {
     public static class Extensions {
         [Pure]
-        public static float Abs(this float value) => Math.Abs(value);
+        private static float Abs(this float value) => Math.Abs(value);
 
         [Pure]
         public static bool IsNearly(this float value, float other, float threshold = float.Epsilon)
             => (value - other).Abs() <= threshold;
-
-        [Pure]
-        public static float ContentHeight(this IResolvedStyle resolvedStyle) =>
-            resolvedStyle.height - resolvedStyle.marginTop - resolvedStyle.borderTopWidth - resolvedStyle.paddingTop -
-            resolvedStyle.paddingBottom - resolvedStyle.borderBottomWidth - resolvedStyle.marginBottom;
-
-        [Pure]
-        public static float ContentWidth(this IResolvedStyle resolvedStyle) =>
-            resolvedStyle.width - resolvedStyle.marginLeft - resolvedStyle.borderLeftWidth - resolvedStyle.paddingLeft -
-            resolvedStyle.paddingRight - resolvedStyle.borderRightWidth - resolvedStyle.marginRight;
-
-        [Pure]
-        public static bool IsNearlyOrLargerThan(this float value, float other) =>
-            value >= other; //|| value.IsNearly(other);
-
-        [Pure]
-        public static bool IsHigherThan(this Length length, float heightInPixel, IResolvedStyle rsStyle) {
-            if (length.unit == LengthUnit.Pixel && length.value > heightInPixel) {
-                return true;
-            }
-
-            return length.unit == LengthUnit.Percent &&
-                   (rsStyle.ContentHeight() * (length.value / 100)).IsNearlyOrLargerThan(heightInPixel);
-        }
-
-        [Pure]
-        public static T Max<T>(this T a, T b) where T : IComparable<T> => a.CompareTo(b) < 0 ? b : a;
 
         /// <inheritdoc cref="AsOrThrow{T}(GameObject, Search)"/>
         [NotNull]

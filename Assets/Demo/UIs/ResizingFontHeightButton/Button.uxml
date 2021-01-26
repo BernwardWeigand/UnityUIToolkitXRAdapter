@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements.AngularFontHeightButton text="Push the button" style="width: 92%; height: 40%; margin-left: 4%; margin-right: 4%; margin-top: 4%; margin-bottom: 4%; padding-left: 1%; padding-right: 1%; padding-top: 1%; padding-bottom: 1%; font-size: 30%;" />
+    <UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements.AngularFontHeightLabel text="You pushed it :)" style="width: 96%; height: 46%; font-size: 30%; margin-left: 2%; margin-right: 2%; margin-top: 2%; margin-bottom: 2%; -unity-text-align: middle-center; color: rgba(0, 255, 0, 255); visibility: hidden;" />
+</ui:UXML>

@@ -10,6 +10,7 @@
   <xs:import schemaLocation="UnityEditor.ShaderGraph.Drawing.xsd" namespace="UnityEditor.ShaderGraph.Drawing" />
   <xs:include schemaLocation="GlobalNamespace.xsd" />
   <xs:import schemaLocation="Unity.UI.Builder.xsd" namespace="Unity.UI.Builder" />
-  <xs:import schemaLocation="UIToolkitXRAdapter.AngularSizeText.xsd" namespace="UIToolkitXRAdapter.AngularSizeText" />
+  <xs:import schemaLocation="UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements.xsd" namespace="UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements" />
+  <xs:import schemaLocation="UIToolkitXRAdapter.AngularResizing.DefaultElements.xsd" namespace="UIToolkitXRAdapter.AngularResizing.DefaultElements" />
   <xs:import schemaLocation="UnityEditor.PackageManager.UI.xsd" namespace="UnityEditor.PackageManager.UI" />
 </xs:schema>
