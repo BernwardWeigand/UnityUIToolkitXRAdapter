@@ -89,7 +89,7 @@ namespace UIToolkitXRAdapter.AngularResizing {
             if (l.unit == LengthUnit.Pixel && l.value > comparedHeight) {
                 return true;
             }
-            // TODO may calculate the the height different
+            // TODO may calculate the the height differently
             return l.unit == LengthUnit.Percent && veOfLength.contentRect.height * l.AsDecimal() > comparedHeight;
         }
 
