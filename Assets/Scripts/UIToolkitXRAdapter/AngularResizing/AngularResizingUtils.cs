@@ -5,7 +5,6 @@ using CoreLibrary;
 using JetBrains.Annotations;
 using LanguageExt;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
-using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -89,6 +88,7 @@ namespace UIToolkitXRAdapter.AngularResizing {
             if (l.unit == LengthUnit.Pixel && l.value > comparedHeight) {
                 return true;
             }
+
             // TODO may calculate the the height differently
             return l.unit == LengthUnit.Percent && veOfLength.contentRect.height * l.AsDecimal() > comparedHeight;
         }
@@ -98,5 +98,12 @@ namespace UIToolkitXRAdapter.AngularResizing {
 
         [Pure]
         internal static bool IsNotNearlyZero(this float value) => !value.IsNearly(0);
+
+        [Pure]
+        private static float Abs(this float value) => Math.Abs(value);
+
+        [Pure]
+        internal static bool IsNearly(this float value, float other, float threshold = float.Epsilon)
+            => (value - other).Abs() <= threshold;
     }
 }

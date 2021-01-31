@@ -4,7 +4,6 @@ using System.Linq;
 using CoreLibrary;
 using UIToolkitXRAdapter.AngularResizing.DefaultElements;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
-using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;

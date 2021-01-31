@@ -1,6 +1,5 @@
 ﻿using LanguageExt;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
-using UIToolkitXRAdapter.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 

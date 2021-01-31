@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using LanguageExt;
-using UIToolkitXRAdapter.Utils;
 using UnityEngine.UIElements;
 using static UIToolkitXRAdapter.AngularResizing.AngularResizingUtils;
 using static UnityEngine.UIElements.Visibility;
