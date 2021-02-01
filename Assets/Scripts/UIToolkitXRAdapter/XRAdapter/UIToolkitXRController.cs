@@ -73,9 +73,6 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private void HandleController(XRController controller) => controller.PointedLocalPosition()
             .Match(uiToolkitLocalPosition => {
-                    // .IfSome(uiToolkitLocalPosition => {
-                    // Debug.Log(controller.controllerNode);
-                    // Debug.Log(uiToolkitLocalPosition);
                     InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                         UIToolkitLocalPosition = uiToolkitLocalPosition
                     });
@@ -88,7 +85,6 @@ namespace UIToolkitXRAdapter.XRAdapter {
                     UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
                 }
             );
-
 
         private static void DeviceConnected(UnityEngine.XR.InputDevice inputDevice) {
             var characteristics = inputDevice.characteristics;

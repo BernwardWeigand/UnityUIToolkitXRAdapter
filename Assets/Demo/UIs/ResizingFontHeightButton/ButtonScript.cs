@@ -9,7 +9,10 @@ namespace Demo.UIs.ResizingFontHeightButton {
             this.AsOption<UIDocument>().Map(doc => doc.rootVisualElement).IfSome(root => {
                 var label = root.Q<AngularFontHeightLabel>();
                 Option<AngularFontHeightButton> buttonOption = root.Q<AngularFontHeightButton>();
-                buttonOption.IfSome(button => button.clicked += () => label.visible = !label.visible);
+                buttonOption.IfSome(button => {
+                    // _button = button;
+                    button.clicked += () => label.visible = !label.visible;
+                });
             });
         }
     }

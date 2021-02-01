@@ -15,10 +15,12 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private BoxCollider _collider;
 
         internal RectTransform RectTransform;
+        internal UIDocument UIDocument;
 
         private void Awake() {
             AssignComponent(out RectTransform);
-            RectTransform.pivot = new Vector2(0, 1);
+            AssignComponent(out UIDocument);
+            RectTransform.pivot = new Vector2(0, 0);
             _collider = gameObject.AddComponent<BoxCollider>();
         }
 
