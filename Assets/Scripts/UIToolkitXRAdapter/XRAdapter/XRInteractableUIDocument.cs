@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using CoreLibrary;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRKeys;
 
 namespace UIToolkitXRAdapter.XRAdapter {
     /// A component that ensures a <see cref="UIDocument"/> will intercept
@@ -16,16 +19,33 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         internal RectTransform RectTransform;
 
+        private UIDocument _uiDocument;
+        private readonly List<TextField> _textFields = new List<TextField>();
+        // [SerializeField] private Keyboard _keyboard;
+
         private void Awake() {
             AssignComponent(out RectTransform);
+            AssignComponent(out _uiDocument);
             RectTransform.pivot = new Vector2(0, 0);
             _collider = gameObject.AddComponent<BoxCollider>();
+            _uiDocument.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
         }
 
         private void Update() {
             _collider.size = RectTransform.rect.size;
             // ReSharper disable once Unity.InefficientPropertyAccess
             _collider.center = RectTransform.rect.center;
+            var currentTextFields = _uiDocument.rootVisualElement.Query<TextField>().Build().ToList();
+            currentTextFields.Except(_textFields).ForEach(RegisterTextField);
+            _textFields.Except(currentTextFields).ForEach(textField => _textFields.Remove(textField));
+        }
+
+        private void RegisterTextField(TextField textField) {
+            textField.RegisterCallback<ClickEvent>(evt => {
+                // TODO
+                evt.StopPropagation();
+            });
+            _textFields.Add(textField);
         }
     }
 }
