@@ -5,13 +5,13 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UIToolkitXRAdapter.XRAdapter {
-    /// A component that ensures a <see cref="UIDocument"/> will intercept
-    /// the raycasts from the BII Input system.
-    /// It creates a collider that has the exact size of this component's
-    /// transform, in which the UI document will be rendered in.
+    /// A component that ensures a <see cref="UIDocument"/> will intercept the raycasts from the
+    /// <see cref="UIToolkitXRController"/>.
+    /// It creates a collider that has the exact size of this component's transform, in which the UI document will be
+    /// rendered in.
     /// 
-    /// However, this component is not responsible for rendering or input events,
-    /// see this module's docs for which other components are also necessary. 
+    /// However, this component is not responsible for rendering or input events, see the docs for which other
+    /// components are also necessary. 
     [RequireComponent(typeof(UIDocument), typeof(RectTransform), typeof(RenderTextureResizer))]
     public class XRInteractableUIDocument : BaseBehaviour {
         private BoxCollider _collider;
@@ -20,6 +20,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
         internal RenderTextureResizer Resizer;
 
         private UIDocument _uiDocument;
+        [SerializeField]
+        private bool debugPointer;
+        
         private readonly List<TextField> _textFields = new List<TextField>();
         [SerializeField]
         private XRTextInput xrTextInput;
@@ -31,6 +34,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
             RectTransform.pivot = new Vector2(0, 1);
             
             _collider = gameObject.AddComponent<BoxCollider>();
+            
+            if (debugPointer) {
+                _uiDocument.EnablePointerDebug();
+            }
+            
             _uiDocument.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
         }
 
