@@ -1,3 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="filler text" password="false" style="font-size: 40px; width: 96%; height: 96%; -unity-font-style: bold; -unity-text-align: middle-center; color: rgba(255, 255, 255, 255); margin-left: 2%; margin-right: 2%; margin-top: 2%; margin-bottom: 2%;" />
-</ui:UXML>

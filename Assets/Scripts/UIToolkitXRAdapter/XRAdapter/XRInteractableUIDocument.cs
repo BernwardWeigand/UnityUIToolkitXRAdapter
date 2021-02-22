@@ -21,11 +21,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private UIDocument _uiDocument;
         private readonly List<TextField> _textFields = new List<TextField>();
-        // TODO check http://answers.unity.com/answers/1703263/view.html
-        [SerializeField, SerializeReference]
-#pragma warning disable 649
-        private ITextInput _textInput;
-#pragma warning restore 649
+        [SerializeField]
+        private XRTextInput xrTextInput;
 
         private void Awake() {
             AssignComponent(out RectTransform);
@@ -49,7 +46,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         private void RegisterTextField(TextField textField) {
-            textField.RegisterCallback<ClickEvent>(evt => _textInput.RegisterAsCurrentlyActive(textField));
+            textField.RegisterCallback<ClickEvent>(evt => xrTextInput.RegisterAsCurrentlyActive(textField));
             _textFields.Add(textField);
         }
     }
