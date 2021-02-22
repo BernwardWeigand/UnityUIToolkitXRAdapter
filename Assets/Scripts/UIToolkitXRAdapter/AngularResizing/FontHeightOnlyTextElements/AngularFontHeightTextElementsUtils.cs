@@ -19,6 +19,7 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
         /// <inheritdoc cref="IAngularResizableElement{T}"/>
         /// <remarks>
         /// TODO when unity supports default implementations move it to <see cref="IAngularFontHeightTextElement{T}"/>>
+        /// TODO fix bug for initial font height, if it is not visible
         /// </remarks>
         internal static void Resize<T>(this IAngularFontHeightTextElement<T> element, float distanceToCamera,
             float pixelPerMeter) where T : TextElement {
