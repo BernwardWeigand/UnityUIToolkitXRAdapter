@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CoreLibrary;
+﻿using CoreLibrary;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -30,11 +27,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private static Vector2? PointedLocalPosition(this Transform transform) =>
             Physics.Raycast(transform.position, transform.forward, out var hit) ? hit.UIToolkitPosition() : null;
 
-        /// <summary>
-        /// TODO comment
-        /// </summary>
-        /// <param name="hit"></param>
-        /// <returns></returns>
+        /// <remarks>because of the lack of world space render support in the
+        /// <see cref="UnityEngine.UIElements.InputSystem.InputSystemEventSystem.OnPointPerformed"/> method,
+        /// which processes the return value, the <see cref="Screen.height"/> is part of the y-axis calculation.
+        /// The <see cref="XRInteractableUIDocument.debugPointer"/> may be useful to debug this method, if necessary.
+        /// </remarks>
+        /// <param name="hit">a <see cref="RaycastHit"/> possibly on a <see cref="XRInteractableUIDocument"/></param>
+        /// <returns>the local UI Toolkit position on the <see cref="XRInteractableUIDocument"/> or null</returns>
         [Pure]
         private static Vector2? UIToolkitPosition(this RaycastHit hit) {
             var document = hit.transform.gameObject.As<XRInteractableUIDocument>();
@@ -43,7 +42,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             }
 
             // ReSharper disable once PossibleNullReferenceException
-            return (document.RectTransform.WorldToLocalPosition(hit.point) / document.Resizer.RenderScale)
+            return (document.RectTransform.WorldToLocalPosition(hit.point) * document.Resizer.RenderScale)
                 .WithY(y => Screen.height + y);
         }
 
