@@ -26,7 +26,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
             " than 1 have a higher resolution and will use downscaling." +
             "Higher values can be used to reduce aliasing of the UI"
         )]
-        private float _renderScale = 1.0f;
+        private float renderScale = 1.0f;
+
+        public float RenderScale => renderScale;
 
         private float _currentRenderScale;
 
@@ -57,7 +59,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private void Update() {
             // Note: We cannot use OnRectTransformDimensionChanged event, because it is called too often.
             // Instead, we have to manually check if the dimensions changed
-            if (!_renderScale.IsNearly(_currentRenderScale)
+            if (!renderScale.IsNearly(_currentRenderScale)
                 || !_lastHeight.IsNearly(_rectTransform.rect.height)
                 || !_lastWidth.IsNearly(_rectTransform.rect.width)
             ) updateRenderTextureSize();
@@ -66,13 +68,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private void updateRenderTextureSize() {
             if (!_initialized) initialize();
             var renderTex = RenderTexture.GetTemporary(
-                (int) (_rectTransform.rect.width * _renderScale),
-                (int) (_rectTransform.rect.height * _renderScale),
+                (int) (_rectTransform.rect.width * renderScale),
+                (int) (_rectTransform.rect.height * renderScale),
                 depthBufferDepth
             );
             _document.panelSettings.scaleMode = PanelScaleModes.ConstantPixelSize;
-            _document.panelSettings.scale = _renderScale;
-            _currentRenderScale = _renderScale;
+            _document.panelSettings.scale = renderScale;
+            _currentRenderScale = renderScale;
             _document.panelSettings.targetTexture = renderTex;
             _image.texture = renderTex;
 
