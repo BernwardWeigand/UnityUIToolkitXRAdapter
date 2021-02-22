@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using CoreLibrary;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,25 +21,47 @@ namespace UIToolkitXRAdapter.XRAdapter {
         internal RenderTextureResizer Resizer;
 
         private UIDocument _uiDocument;
-        [SerializeField]
+        [SerializeField] 
         private bool debugPointer;
-        
+
+        public XRTextInput xrTextInput;
+        private readonly List<TextField> _textFields = new List<TextField>();
+
         private void Awake() {
             AssignComponent(out RectTransform);
             AssignComponent(out _uiDocument);
             AssignComponent(out Resizer);
             RectTransform.pivot = new Vector2(0, 1);
-            
+
             _collider = gameObject.AddComponent<BoxCollider>();
+
             if (debugPointer) {
                 _uiDocument.EnablePointerDebug();
             }
+
+            _uiDocument.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
         }
 
         private void Update() {
             _collider.size = RectTransform.rect.size;
             // ReSharper disable once Unity.InefficientPropertyAccess
             _collider.center = RectTransform.rect.center;
+            var currentTextFields = _uiDocument.rootVisualElement.Query<TextField>().Build().ToList();
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+            currentTextFields.Except(_textFields).ForEach(RegisterTextField);
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+            _textFields.Except(currentTextFields).ForEach(textField => _textFields.Remove(textField));
+        }
+
+        private void RegisterTextField(TextField textField) {
+            if (xrTextInput.IsNull()) {
+                throw new Exception($"To use a {textField.GetType().Name} in a {nameof(XRInteractableUIDocument)} " +
+                                    $"you have to provide a {nameof(XRTextInput)} to it.");
+            }
+
+            textField.RegisterCallback<FocusInEvent>(evt => xrTextInput.Activate(textField));
+            textField.RegisterCallback<FocusOutEvent>(evt => xrTextInput.Deactivate(textField));
+            _textFields.Add(textField);
         }
     }
 }
