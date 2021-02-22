@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CoreLibrary;
 using JetBrains.Annotations;
-using LanguageExt;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using CommonUsages = UnityEngine.InputSystem.CommonUsages;
 
 namespace UIToolkitXRAdapter.XRAdapter {
     internal static class XRAdapterUtils {
@@ -20,29 +19,33 @@ namespace UIToolkitXRAdapter.XRAdapter {
             xrController.controllerNode.Equals(XRNode.RightHand);
 
         [Pure]
-        internal static Option<Vector2> PointedLocalPosition(this XRController controller) =>
+        internal static Vector2? PointedLocalPosition(this XRController controller) =>
             PointedLocalPosition(controller.transform);
 
         [Pure]
         private static Vector2 WorldToLocalPosition(this RectTransform rectTransform, Vector3 world) =>
             rectTransform.InverseTransformPoint(world);
 
-
         [Pure]
-        private static Option<T> AsOption<T>(this GameObject go, Search where = Search.InObjectOnly) where T : class
-            => go.As<T>(where) ?? Option<T>.None;
+        private static Vector2? PointedLocalPosition(this Transform transform) =>
+            Physics.Raycast(transform.position, transform.forward, out var hit) ? hit.UIToolkitPosition() : null;
 
+        /// <summary>
+        /// TODO comment
+        /// </summary>
+        /// <param name="hit"></param>
+        /// <returns></returns>
         [Pure]
-        private static Option<Vector2> PointedLocalPosition(this Transform transform) =>
-            Physics.Raycast(transform.position, transform.forward, out var hit)
-                ? hit.UIToolkitLocalPosition()
-                : Option<Vector2>.None;
+        private static Vector2? UIToolkitPosition(this RaycastHit hit) {
+            var document = hit.transform.gameObject.As<XRInteractableUIDocument>();
+            if (document.IsNull()) {
+                return null;
+            }
 
-        [Pure]
-        private static Option<Vector2> UIToolkitLocalPosition(this RaycastHit hit) =>
-            hit.transform.gameObject.AsOption<XRInteractableUIDocument>()
-                .Map(document => (document.RectTransform.WorldToLocalPosition(hit.point) / document.Resizer.RenderScale)
-                    .WithY(y => Screen.height + y));
+            // ReSharper disable once PossibleNullReferenceException
+            return (document.RectTransform.WorldToLocalPosition(hit.point) / document.Resizer.RenderScale)
+                .WithY(y => Screen.height + y);
+        }
 
         internal static void EnablePointerDebug(this UIDocument uiDocument) {
             const int width = 15;

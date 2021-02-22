@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using LanguageExt;
 using UnityEngine.UIElements;
 using static UIToolkitXRAdapter.AngularResizing.AngularResizingUtils;
 using static UnityEngine.UIElements.Visibility;
 
 namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
     internal static class AngularResizingElementUtils {
-        internal static Option<Length> ExtractHeight(IReadOnlyDictionary<string, string> stylesAsDict) =>
+        internal static Length? ExtractHeight(IReadOnlyDictionary<string, string> stylesAsDict) =>
             ExtractLength(stylesAsDict, "height");
 
-        internal static Option<Length> ExtractWidth(IReadOnlyDictionary<string, string> stylesAsDict) =>
+        internal static Length? ExtractWidth(IReadOnlyDictionary<string, string> stylesAsDict) =>
             ExtractLength(stylesAsDict, "width");
 
-        internal static Option<float> TryGetValueFromBag(this UxmlFloatAttributeDescription floatAttribute,
+        internal static float? TryGetValueFromBag(this UxmlFloatAttributeDescription floatAttribute,
             IUxmlAttributes bag, CreationContext cc) {
             var result = 0f;
-            return floatAttribute.TryGetValueFromBag(bag, cc, ref result) ? result : Option<float>.None;
+            return floatAttribute.TryGetValueFromBag(bag, cc, ref result) ? result : (float?) null;
         }
 
         /// <inheritdoc cref="IAngularResizableElement{T}"/>
@@ -32,16 +31,32 @@ namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
             var currentHeight = visualElement.contentRect.width;
             var currentWidth = visualElement.contentRect.width;
 
-            var newWidthInPixels = element.AngularSizeWidth.Filter(angularWidth => angularWidth.IsNotNearlyZero())
-                .Match(angularSizeWidth => CalculateSizeInPixel(angularSizeWidth, distanceToCamera, pixelPerMeter),
-                    () => currentWidth / currentHeight * newHeightInPixels);
+            float newWidthInPixels;
+            if (element.AngularSizeWidth.HasValue) {
+                var angularSizeWidth = element.AngularSizeWidth.Value;
+                if (angularSizeWidth.IsNotNearlyZero()) {
+                    newWidthInPixels = CalculateSizeInPixel(angularSizeWidth, distanceToCamera, pixelPerMeter);
+                }
+                else {
+                    newWidthInPixels = currentWidth / currentHeight * newHeightInPixels;
+                }
+            }
+            else {
+                newWidthInPixels = currentWidth / currentHeight * newHeightInPixels;
+            }
 
-            if (element.InitialHeight.Filter(iH => iH.ContentIsHigherThan(newHeightInPixels, visualElement)).IsSome
-                && newHeightInPixels < currentHeight || newWidthInPixels < currentWidth &&
-                element.InitialWidth.Filter(initialWidth => initialWidth.value.IsNotNearlyZero())
-                    .Filter(initialWidth => initialWidth.ContentIsWiderThan(newWidthInPixels, visualElement)).IsSome) {
+            if (newHeightInPixels < currentHeight && element.InitialHeight.HasValue &&
+                element.InitialHeight.Value.ContentIsHigherThan(newHeightInPixels, visualElement)) {
                 // this shouldn't shrink
                 return;
+            }
+
+            if (newWidthInPixels < currentWidth && element.InitialWidth.HasValue) {
+                var iniWidth = element.InitialWidth.Value;
+                if (iniWidth.value.IsNotNearlyZero() && iniWidth.ContentIsWiderThan(newWidthInPixels, visualElement)) {
+                    // this shouldn't shrink
+                    return;
+                }
             }
 
             var maxHeight = visualElement.PossibleHeight();

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CoreLibrary;
 using JetBrains.Annotations;
-using LanguageExt;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -37,21 +36,23 @@ namespace UIToolkitXRAdapter.AngularResizing {
             }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        internal static Option<IReadOnlyDictionary<string, string>> ToStylesDictionary(this IUxmlAttributes attributes)
-            => attributes.ExtractStylesAsString().Map(ToDict);
+        [CanBeNull]
+        internal static IReadOnlyDictionary<string, string> ToStylesDictionary(this IUxmlAttributes attributes) {
+            var value = attributes.ExtractStylesAsString();
+            return value.IsNull() ? null : ToDict(value);
+        }
 
-        private static Option<string> ExtractStylesAsString(this IUxmlAttributes uxmlAttributes) =>
-            !uxmlAttributes.TryGetAttributeValue("style", out var stylesAsString)
-                ? Option<string>.None
-                : stylesAsString;
+        [CanBeNull]
+        private static string ExtractStylesAsString(this IUxmlAttributes uxmlAttributes) => 
+            uxmlAttributes.TryGetAttributeValue("style", out var stylesAsString) ? stylesAsString : null;
 
         private const string Pixel = "px";
         private const string Percent = "%";
 
         [Pure]
-        internal static Option<Length> ExtractLength(IReadOnlyDictionary<string, string> stylesAsDict, string name) {
+        internal static Length? ExtractLength(IReadOnlyDictionary<string, string> stylesAsDict, string name) {
             if (!stylesAsDict.TryGetValue(name, out var lengthString)) {
-                return Option<Length>.None;
+                return null;
             }
 
             LengthUnit lengthUnit;
@@ -59,17 +60,17 @@ namespace UIToolkitXRAdapter.AngularResizing {
             if (lengthString.EndsWith(Pixel)) {
                 lengthUnit = LengthUnit.Pixel;
                 if (!float.TryParse(lengthString.Substring(0, lengthString.Length - Pixel.Length), out lengthSize)) {
-                    return Option<Length>.None;
+                    return null;
                 }
             }
             else if (lengthString.EndsWith(Percent)) {
                 lengthUnit = LengthUnit.Percent;
                 if (!float.TryParse(lengthString.Substring(0, lengthString.Length - Percent.Length), out lengthSize)) {
-                    return Option<Length>.None;
+                    return null;
                 }
             }
             else {
-                return Option<Length>.None;
+                return null;
             }
 
             return new Length(lengthSize, lengthUnit);

@@ -1,5 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using LanguageExt;
+﻿using System.Linq;
+using System.Runtime.InteropServices;
+using CoreLibrary;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -49,8 +50,15 @@ namespace UIToolkitXRAdapter.XRAdapter {
             base.FinishSetup();
             UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
             var controllers = Object.FindObjectsOfType<XRController>();
-            controllers.Find(XRAdapterUtils.IsLeftHandController).IfSome(controller => _leftController = controller);
-            controllers.Find(XRAdapterUtils.IsRightHandController).IfSome(controller => _rightController = controller);
+            var leftController = controllers.Where(XRAdapterUtils.IsLeftHandController).First();
+            if (leftController != null) {
+                _leftController = leftController;
+            }
+
+            var rightController = controllers.Where(XRAdapterUtils.IsRightHandController).First();
+            if (rightController != null) {
+                _rightController = rightController;
+            }
         }
 
         static UIToolkitXRController() => InputSystem.RegisterLayout<UIToolkitXRController>();
@@ -71,20 +79,21 @@ namespace UIToolkitXRAdapter.XRAdapter {
             }
         }
 
-        private void HandleController(XRController controller) => controller.PointedLocalPosition()
-            .Match(uiToolkitLocalPosition => {
-                    InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
-                        UIToolkitLocalPosition = uiToolkitLocalPosition
-                    });
-                    UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
-                }
-                , () => {
-                    InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
-                        UIToolkitLocalPosition = Vector2.zero
-                    });
-                    UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
-                }
-            );
+        private void HandleController(XRController controller) {
+            var uiToolkitLocalPosition = controller.PointedLocalPosition();
+            if (uiToolkitLocalPosition.HasValue) {
+                InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
+                    UIToolkitLocalPosition = uiToolkitLocalPosition.Value
+                });
+                UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
+            }
+            else {
+                InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
+                    UIToolkitLocalPosition = Vector2.zero
+                });
+                UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
+            }
+        }
 
         private static void DeviceConnected(UnityEngine.XR.InputDevice inputDevice) {
             var characteristics = inputDevice.characteristics;
@@ -103,14 +112,17 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private static void DeviceDisconnected(UnityEngine.XR.InputDevice inputDevice) {
             var characteristics = inputDevice.characteristics;
             if ((characteristics & InputDeviceCharacteristics.Controller) == 0) return;
-            if ((characteristics & InputDeviceCharacteristics.Left) != 0) {
-                Option<UIToolkitXRController> leftController = InputSystem.GetDevice<UIToolkitXRController>(LeftHand);
-                leftController.IfSome(InputSystem.RemoveDevice);
+            if ((characteristics & InputDeviceCharacteristics.Left) != 0 &&
+                // ReSharper disable once PatternAlwaysOfType
+                InputSystem.GetDevice<UIToolkitXRController>(LeftHand) is UIToolkitXRController leftController) {
+                InputSystem.RemoveDevice(leftController);
             }
 
             if ((characteristics & InputDeviceCharacteristics.Right) == 0) return;
-            Option<UIToolkitXRController> rightController = InputSystem.GetDevice<UIToolkitXRController>(RightHand);
-            rightController.IfSome(InputSystem.RemoveDevice);
+            // ReSharper disable once PatternAlwaysOfType
+            if (InputSystem.GetDevice<UIToolkitXRController>(RightHand) is UIToolkitXRController rightController) {
+                InputSystem.RemoveDevice(rightController);
+            }
         }
     }
 }

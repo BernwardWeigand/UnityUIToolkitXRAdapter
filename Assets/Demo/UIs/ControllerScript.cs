@@ -1,9 +1,7 @@
 ﻿using CoreLibrary;
-using LanguageExt;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UnityEngine.XR.CommonUsages;
-using InputDevice = UnityEngine.InputSystem.InputDevice;
 
 namespace Demo.UIs {
     [RequireComponent(typeof(DeviceBasedContinuousMoveProvider), typeof(DeviceBasedContinuousMoveProvider))]
@@ -21,29 +19,31 @@ namespace Demo.UIs {
         }
 
         private void Update() {
-            leftController.inputDevice.TryGetFeatureValue(gripButton).IfSome(gripIsPressed => {
-                if (_gripWasPressed && !gripIsPressed) {
+            var nullableGripButton = leftController.inputDevice.TryGetFeatureValue(gripButton);
+            if (nullableGripButton.HasValue) {
+                if (_gripWasPressed && !nullableGripButton.Value) {
                     _turnProvider.enabled = false;
                     _gripWasPressed = false;
                 }
 
-                if (!_gripWasPressed && gripIsPressed) {
+                if (!_gripWasPressed && nullableGripButton.Value) {
                     _turnProvider.enabled = true;
                     _gripWasPressed = true;
                 }
-            });
+            }
 
-            leftController.inputDevice.TryGetFeatureValue(triggerButton).IfSome(triggerIsPressed => {
-                if (_triggerWasPressed && !triggerIsPressed) {
+            var nullableTriggerButton = leftController.inputDevice.TryGetFeatureValue(triggerButton);
+            if (nullableTriggerButton.HasValue) {
+                if (_triggerWasPressed && !nullableTriggerButton.Value) {
                     _moveProvider.enabled = false;
                     _triggerWasPressed = false;
                 }
 
-                if (!_gripWasPressed && triggerIsPressed) {
+                if (!_gripWasPressed && nullableTriggerButton.Value) {
                     _moveProvider.enabled = true;
                     _triggerWasPressed = true;
                 }
-            });
+            }
         }
     }
 }

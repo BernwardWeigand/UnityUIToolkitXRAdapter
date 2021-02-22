@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 using static UIToolkitXRAdapter.AngularResizing.DefaultElements.AngularResizingElementUtils;
 
 namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
@@ -12,10 +11,10 @@ namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
         public bool HasToBeCulledWhenCannotExpand { get; set; }
 
         public float AngularSizeHeight { get; set; }
-        Option<Length> IAngularResizingElement.InitialHeight { get; set; }
+        Length? IAngularResizingElement.InitialHeight { get; set; }
 
-        public Option<float> AngularSizeWidth { get; set; }
-        Option<Length> IAngularResizingElement.InitialWidth { get; set; }
+        public float? AngularSizeWidth { get; set; }
+        Length? IAngularResizingElement.InitialWidth { get; set; }
 
         // ReSharper disable once UnusedType.Global
         public new class UxmlFactory : UxmlFactory<AngularResizingVisualElement, UxmlTraits> { }
@@ -44,23 +43,27 @@ namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
             /// <inheritdoc cref="VisualElement.UxmlTraits.Init"/>
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc) {
                 base.Init(ve, bag, cc);
-                var angularResizingElement = (IAngularResizingElement) ve;
-                angularResizingElement.HasToBeCulledWhenCannotExpand = m_cullWhenCannotExpand.GetValueFromBag(bag, cc);
+                var angularSizeElement = (IAngularResizingElement) ve;
+                angularSizeElement.HasToBeCulledWhenCannotExpand = m_cullWhenCannotExpand.GetValueFromBag(bag, cc);
 
-                angularResizingElement.AngularSizeHeight = m_angularHeight.GetValueFromBag(bag, cc);
+                angularSizeElement.AngularSizeHeight = m_angularHeight.GetValueFromBag(bag, cc);
 
 
-                var styleOption = bag.ToStylesDictionary();
-                var initialHeight = styleOption.Bind(ExtractHeight);
-                initialHeight.IfSome(initial => angularResizingElement.InitialHeight = initial);
-                var initialWidth = styleOption.Bind(ExtractWidth);
-                initialWidth.IfSome(initial => angularResizingElement.InitialWidth = initial);
+                var nullableStyle = bag.ToStylesDictionary();
+                if (nullableStyle != null) {
+                    angularSizeElement.InitialHeight = ExtractHeight(nullableStyle);
+                    angularSizeElement.InitialWidth = ExtractWidth(nullableStyle);
+                }
 
-                m_angularWidth.TryGetValueFromBag(bag, cc).Match(w => angularResizingElement.AngularSizeWidth = w,
-                    () => initialHeight.Bind(iHeight => initialWidth.Map(iWidth => iWidth.value / iHeight.value))
-                        .Map(widthHeightRatio => widthHeightRatio * angularResizingElement.AngularSizeHeight)
-                        .Match(angularSizeWidth => angularResizingElement.AngularSizeWidth = angularSizeWidth,
-                            () => angularResizingElement.AngularSizeWidth = Option<float>.None));
+                var nullableAngularSizeWidth = m_angularWidth.TryGetValueFromBag(bag, cc);
+                if (nullableAngularSizeWidth.HasValue) {
+                    angularSizeElement.AngularSizeWidth = nullableAngularSizeWidth;
+                }
+                else if (angularSizeElement.InitialHeight.HasValue && angularSizeElement.InitialWidth.HasValue) {
+                    var ratio = angularSizeElement.InitialWidth.Value.value / 
+                                angularSizeElement.InitialHeight.Value.value;
+                    angularSizeElement.AngularSizeWidth = ratio * angularSizeElement.AngularSizeHeight;
+                }
             }
         }
 

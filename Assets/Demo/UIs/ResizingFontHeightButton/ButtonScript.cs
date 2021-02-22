@@ -1,4 +1,4 @@
-﻿using LanguageExt;
+﻿using CoreLibrary;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,14 +6,16 @@ using UnityEngine.UIElements;
 namespace Demo.UIs.ResizingFontHeightButton {
     public class ButtonScript : MonoBehaviour {
         private void Awake() {
-            this.AsOption<UIDocument>().Map(doc => doc.rootVisualElement).IfSome(root => {
+            var document = this.As<UIDocument>();
+            // ReSharper disable once InvertIf
+            if (document != null) {
+                var root = document.rootVisualElement;
                 var label = root.Q<AngularFontHeightLabel>();
-                Option<AngularFontHeightButton> buttonOption = root.Q<AngularFontHeightButton>();
-                buttonOption.IfSome(button => {
-                    // _button = button;
+                var button = root.Q<AngularFontHeightButton>();
+                if (button != null) {
                     button.clicked += () => label.visible = !label.visible;
-                });
-            });
+                }
+            }
         }
     }
 }

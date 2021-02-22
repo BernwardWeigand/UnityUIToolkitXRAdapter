@@ -1,3 +1,3 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <UIToolkitXRAdapter.AngularResizing.DefaultElements.AngularResizingVisualElement height-in-arc-minutes="300" style="width: 256px; height: 256px; margin-left: auto; margin-right: auto; margin-top: auto; margin-bottom: auto; background-image: url(&apos;/Assets/Packages/LanguageExt.Core.3.4.15/lang-ext-small.png&apos;);" />
+    <UIToolkitXRAdapter.AngularResizing.DefaultElements.AngularResizingVisualElement height-in-arc-minutes="300" style="width: 256px; height: 256px; margin-left: auto; margin-right: auto; margin-top: auto; margin-bottom: auto; background-image: url(&apos;/Assets/UI Toolkit/Sprites/EmojiOne.png&apos;);" />
 </ui:UXML>

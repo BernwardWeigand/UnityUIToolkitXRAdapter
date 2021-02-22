@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
     public sealed class AngularFontHeightButton : Button, IAngularFontHeightTextElement<AngularFontHeightButton> {
@@ -15,7 +14,7 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
 
         public float AngularFontHeight { get; set; }
 
-        Option<Length> IAngularFontHeightTextElement.InitialFontHeight { get; set; }
+        Length? IAngularFontHeightTextElement.InitialFontHeight { get; set; }
 
         // ReSharper disable once UnusedType.Global
         public new class UxmlFactory : UxmlFactory<AngularFontHeightButton, UxmlTraits> { }

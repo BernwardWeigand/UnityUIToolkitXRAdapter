@@ -1,11 +1,10 @@
-﻿using LanguageExt;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
     internal interface IAngularFontHeightTextElement : ICullableElement {
         float AngularFontHeight { get; set; }
 
-        Option<Length> InitialFontHeight { get; set; }
+        Length? InitialFontHeight { get; set; }
     }
 
     internal interface IAngularFontHeightTextElement<out T> : IAngularResizableElement<T>,

@@ -24,8 +24,10 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
             var angularHeightText = (IAngularFontHeightTextElement) ve;
             angularHeightText.AngularFontHeight = m_angularFontHeight.GetValueFromBag(bag, cc);
             angularHeightText.HasToBeCulledWhenCannotExpand = m_cullWhenTextCannotExpand.GetValueFromBag(bag, cc);
-
-            ExtractFontSize(bag).IfSome(initialFontHeight => angularHeightText.InitialFontHeight = initialFontHeight);
+            var initialFontHeight = ExtractFontSize(bag);
+            if (initialFontHeight.HasValue) {
+                angularHeightText.InitialFontHeight = initialFontHeight.Value;
+            }
         }
     }
 }
