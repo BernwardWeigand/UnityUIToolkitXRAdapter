@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CoreLibrary;
@@ -20,25 +21,23 @@ namespace UIToolkitXRAdapter.XRAdapter {
         internal RenderTextureResizer Resizer;
 
         private UIDocument _uiDocument;
-        [SerializeField]
-        private bool debugPointer;
-        
+        [SerializeField] private bool debugPointer;
+
         private readonly List<TextField> _textFields = new List<TextField>();
-        [SerializeField]
-        private XRTextInput xrTextInput;
+        public XRTextInput xrTextInput;
 
         private void Awake() {
             AssignComponent(out RectTransform);
             AssignComponent(out _uiDocument);
             AssignComponent(out Resizer);
             RectTransform.pivot = new Vector2(0, 1);
-            
+
             _collider = gameObject.AddComponent<BoxCollider>();
-            
+
             if (debugPointer) {
                 _uiDocument.EnablePointerDebug();
             }
-            
+
             _uiDocument.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
         }
 
@@ -54,7 +53,12 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         private void RegisterTextField(TextField textField) {
-            textField.RegisterCallback<ClickEvent>(evt => xrTextInput.RegisterAsCurrentlyActive(textField));
+            if (xrTextInput.IsNull()) {
+                throw new Exception("TODO");
+            }
+
+            textField.RegisterCallback<FocusInEvent>(evt => xrTextInput.Activate(textField));
+            textField.RegisterCallback<FocusOutEvent>(evt => xrTextInput.Deactivate(textField));
             _textFields.Add(textField);
         }
     }
