@@ -83,7 +83,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
                     .WithY(y => y - clickOffset);
             });
         }
-
+        
+        [Pure]
         private static VisualElement CreatePointerPart() {
             var pointer = new VisualElement();
             pointer.style.backgroundColor = new StyleColor(Color.red);
