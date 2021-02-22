@@ -23,7 +23,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private readonly List<TextField> _textFields = new List<TextField>();
         // TODO check http://answers.unity.com/answers/1703263/view.html
         [SerializeField, SerializeReference]
+#pragma warning disable 649
         private ITextInput _textInput;
+#pragma warning restore 649
 
         private void Awake() {
             AssignComponent(out RectTransform);
