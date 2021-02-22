@@ -10,15 +10,17 @@ namespace UIToolkitXRAdapter.XRAdapter {
     /// 
     /// However, this component is not responsible for rendering or input events,
     /// see this module's docs for which other components are also necessary. 
-    [RequireComponent(typeof(UIDocument), typeof(RectTransform))]
+    [RequireComponent(typeof(UIDocument), typeof(RectTransform), typeof(RenderTextureResizer))]
     public class XRInteractableUIDocument : BaseBehaviour {
         private BoxCollider _collider;
 
         internal RectTransform RectTransform;
+        internal RenderTextureResizer Resizer;
 
         private void Awake() {
             AssignComponent(out RectTransform);
-            RectTransform.pivot = new Vector2(0, 0);
+            AssignComponent(out Resizer);
+            RectTransform.pivot = new Vector2(0, 1);
             _collider = gameObject.AddComponent<BoxCollider>();
         }
 
