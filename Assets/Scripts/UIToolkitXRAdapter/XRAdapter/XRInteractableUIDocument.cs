@@ -3,7 +3,6 @@ using System.Linq;
 using CoreLibrary;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VRKeys;
 
 namespace UIToolkitXRAdapter.XRAdapter {
     /// A component that ensures a <see cref="UIDocument"/> will intercept
@@ -22,7 +21,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private UIDocument _uiDocument;
         private readonly List<TextField> _textFields = new List<TextField>();
-        [SerializeField, SerializeReference] 
+        // TODO check http://answers.unity.com/answers/1703263/view.html
+        [SerializeField, SerializeReference]
         private ITextInput _textInput;
 
         private void Awake() {
@@ -47,10 +47,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         private void RegisterTextField(TextField textField) {
-            textField.RegisterCallback<ClickEvent>(evt => {
-                // TODO
-                evt.StopPropagation();
-            });
+            textField.RegisterCallback<ClickEvent>(evt => _textInput.RegisterAsCurrentlyActive(textField));
             _textFields.Add(textField);
         }
     }
