@@ -21,7 +21,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
         internal RenderTextureResizer Resizer;
 
         private UIDocument _uiDocument;
-        [SerializeField] private bool debugPointer;
+        [SerializeField] 
+        private bool debugPointer;
 
         public XRTextInput xrTextInput;
         private readonly List<TextField> _textFields = new List<TextField>();
