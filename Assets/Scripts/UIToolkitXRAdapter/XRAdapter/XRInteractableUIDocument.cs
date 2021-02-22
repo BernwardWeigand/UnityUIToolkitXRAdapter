@@ -23,8 +23,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private UIDocument _uiDocument;
         [SerializeField] private bool debugPointer;
 
-        private readonly List<TextField> _textFields = new List<TextField>();
         public XRTextInput xrTextInput;
+        private readonly List<TextField> _textFields = new List<TextField>();
 
         private void Awake() {
             AssignComponent(out RectTransform);
@@ -54,7 +54,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private void RegisterTextField(TextField textField) {
             if (xrTextInput.IsNull()) {
-                throw new Exception("TODO");
+                throw new Exception($"To use a {textField.GetType().Name} in a {nameof(XRInteractableUIDocument)} " +
+                                    $"you have to provide a {nameof(XRTextInput)} to it.");
             }
 
             textField.RegisterCallback<FocusInEvent>(evt => xrTextInput.Activate(textField));
