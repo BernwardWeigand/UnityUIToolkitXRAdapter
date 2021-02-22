@@ -22,6 +22,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private UIDocument _uiDocument;
         private readonly List<TextField> _textFields = new List<TextField>();
+        [SerializeField, SerializeReference] 
+        private ITextInput _textInput;
 
         private void Awake() {
             AssignComponent(out RectTransform);
@@ -38,7 +40,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
             // ReSharper disable once Unity.InefficientPropertyAccess
             _collider.center = RectTransform.rect.center;
             var currentTextFields = _uiDocument.rootVisualElement.Query<TextField>().Build().ToList();
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             currentTextFields.Except(_textFields).ForEach(RegisterTextField);
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             _textFields.Except(currentTextFields).ForEach(textField => _textFields.Remove(textField));
         }
 
