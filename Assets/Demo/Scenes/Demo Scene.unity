@@ -302,6 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca354f660d94dfaa11e16b673fe514d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugPointer: 1
   xrTextInput: {fileID: 0}
 --- !u!114 &87161861
 MonoBehaviour:
@@ -434,6 +435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca354f660d94dfaa11e16b673fe514d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugPointer: 0
   xrTextInput: {fileID: 0}
 --- !u!114 &118364795
 MonoBehaviour:
@@ -1855,6 +1857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca354f660d94dfaa11e16b673fe514d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugPointer: 0
   xrTextInput: {fileID: 1740315095}
 --- !u!114 &1740315090
 MonoBehaviour:
