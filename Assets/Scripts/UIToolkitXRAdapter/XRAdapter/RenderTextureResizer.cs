@@ -13,10 +13,10 @@ namespace UIToolkitXRAdapter.XRAdapter {
         // Since OnRectTransformDimensionsChange may be called before Awake,
         // it may need to execute the initialization logic.
         // This bool exists to avoid unnecessary initialization calls.
-        private bool _initialized;
+        internal bool Initialized;
 
-        private UIDocument _document;
-        private RectTransform _rectTransform;
+        internal UIDocument Content;
+        internal RectTransform WorldBounds;
         private RawImage _image;
 
         [SerializeField]
@@ -36,23 +36,23 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private float _lastHeight;
 
         private void Awake() {
-            if (!_initialized) initialize();
+            if (!Initialized) Initialize();
         }
 
-        private void initialize() {
-            AssignComponent(out _document);
-            AssignComponent(out _rectTransform);
+        internal void Initialize() {
+            AssignComponent(out Content);
+            AssignComponent(out WorldBounds);
             AssignComponent(out _image);
-            _document.panelSettings.clearColor = true;
-            _initialized = true;
+            Content.panelSettings.clearColor = true;
+            Initialized = true;
         }
 
         private void Start() => updateRenderTextureSize();
 
         private void OnDestroy() {
-            if (_document.panelSettings.targetTexture != null) {
+            if (Content.panelSettings.targetTexture != null) {
                 _image.texture = null;
-                RenderTexture.ReleaseTemporary(_document.panelSettings.targetTexture);
+                RenderTexture.ReleaseTemporary(Content.panelSettings.targetTexture);
             }
         }
 
@@ -60,26 +60,26 @@ namespace UIToolkitXRAdapter.XRAdapter {
             // Note: We cannot use OnRectTransformDimensionChanged event, because it is called too often.
             // Instead, we have to manually check if the dimensions changed
             if (!renderScale.IsNearly(_currentRenderScale)
-                || !_lastHeight.IsNearly(_rectTransform.rect.height)
-                || !_lastWidth.IsNearly(_rectTransform.rect.width)
+                || !_lastHeight.IsNearly(WorldBounds.rect.height)
+                || !_lastWidth.IsNearly(WorldBounds.rect.width)
             ) updateRenderTextureSize();
         }
 
         private void updateRenderTextureSize() {
-            if (!_initialized) initialize();
+            if (!Initialized) Initialize();
             var renderTex = RenderTexture.GetTemporary(
-                (int) (_rectTransform.rect.width * renderScale),
-                (int) (_rectTransform.rect.height * renderScale),
+                (int) (WorldBounds.rect.width * renderScale),
+                (int) (WorldBounds.rect.height * renderScale),
                 depthBufferDepth
             );
-            _document.panelSettings.scaleMode = PanelScaleModes.ConstantPixelSize;
-            _document.panelSettings.scale = renderScale;
+            Content.panelSettings.scaleMode = PanelScaleModes.ConstantPixelSize;
+            Content.panelSettings.scale = renderScale;
             _currentRenderScale = renderScale;
-            _document.panelSettings.targetTexture = renderTex;
+            Content.panelSettings.targetTexture = renderTex;
             _image.texture = renderTex;
 
-            _lastHeight = _rectTransform.rect.height;
-            _lastWidth = _rectTransform.rect.width;
+            _lastHeight = WorldBounds.rect.height;
+            _lastWidth = WorldBounds.rect.width;
         }
     }
 }

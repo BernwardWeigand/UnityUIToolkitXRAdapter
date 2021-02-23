@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using CoreLibrary;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,43 +15,69 @@ namespace UIToolkitXRAdapter.XRAdapter {
     /// 
     /// However, this component is not responsible for rendering or input events, see the docs for which other
     /// components are also necessary. 
-    [RequireComponent(typeof(UIDocument), typeof(RectTransform), typeof(RenderTextureResizer))]
+    [RequireComponent(typeof(RenderTextureResizer))]
     public class XRInteractableUIDocument : BaseBehaviour {
         private BoxCollider _collider;
 
-        internal RectTransform RectTransform;
         internal RenderTextureResizer Resizer;
 
-        private UIDocument _uiDocument;
-        [SerializeField] 
-        private bool debugPointer;
+        public bool DebugPointerPosition;
+
+        [CanBeNull]
+        private Tuple<EventCallback<PointerMoveEvent>, List<VisualElement>> _debugPointerPositionInformation;
+
+        private bool _hasFocus;
+
+        internal bool IsFocused {
+            get => _hasFocus;
+            set {
+                var root = Resizer.Content.rootVisualElement;
+                if (value) {
+                    if (DebugPointerPosition) {
+                        _debugPointerPositionInformation = root.AddPointerPositionDebugCallback();
+                    }
+
+                    root.AllowAllEvents();
+                    Debug.Log("Focus");
+                }
+                else {
+                    if (DebugPointerPosition && _debugPointerPositionInformation != null) {
+                        root.UnregisterCallback(_debugPointerPositionInformation.Item1);
+                        _debugPointerPositionInformation.Item2.ForEach(p => p.RemoveFromHierarchy());
+                    }
+
+                    root.BlockAllEvents();
+                    Debug.Log("no Focus");
+                }
+
+                _hasFocus = value;
+            }
+        }
 
         public XRTextInput xrTextInput;
         private readonly List<TextField> _textFields = new List<TextField>();
 
         private void Awake() {
-            AssignComponent(out RectTransform);
-            AssignComponent(out _uiDocument);
             AssignComponent(out Resizer);
-            RectTransform.pivot = new Vector2(0, 1);
-
             _collider = gameObject.AddComponent<BoxCollider>();
-
-            if (debugPointer) {
-                _uiDocument.EnablePointerDebug();
+            if (!Resizer.Initialized) {
+                Resizer.Initialize();
             }
 
-            _uiDocument.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
+            Resizer.WorldBounds.pivot = new Vector2(0, 1);
+
+            IsFocused = false;
+
+            Resizer.Content.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
         }
 
         private void Update() {
-            _collider.size = RectTransform.rect.size;
-            // ReSharper disable once Unity.InefficientPropertyAccess
-            _collider.center = RectTransform.rect.center;
-            var currentTextFields = _uiDocument.rootVisualElement.Query<TextField>().Build().ToList();
-            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+            var rectangle = Resizer.WorldBounds.rect;
+            _collider.size = rectangle.size;
+            _collider.center = rectangle.center;
+
+            var currentTextFields = Resizer.Content.rootVisualElement.Query<TextField>().Build().ToList();
             currentTextFields.Except(_textFields).ForEach(RegisterTextField);
-            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             _textFields.Except(currentTextFields).ForEach(textField => _textFields.Remove(textField));
         }
 

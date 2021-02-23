@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.InteropServices;
 using CoreLibrary;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,6 +43,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private XRController _leftController;
         private XRController _rightController;
 
+        [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument = null;
+
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public Vector2Control UIToolkitLocalPosition { get; private set; }
@@ -80,14 +83,36 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         private void HandleController(XRController controller) {
-            var uiToolkitLocalPosition = controller.PointedLocalPosition();
-            if (uiToolkitLocalPosition.HasValue) {
-                InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
-                    UIToolkitLocalPosition = uiToolkitLocalPosition.Value
-                });
-                UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
+            var possibleRaycastHit = controller.PointingAt();
+            if (possibleRaycastHit.HasValue) {
+                var raycastHit = possibleRaycastHit.Value;
+                var xrInteractableUIDocument = raycastHit.transform.gameObject.As<XRInteractableUIDocument>();
+                // ReSharper disable once InvertIf
+                if (xrInteractableUIDocument != null) {
+                    if (!xrInteractableUIDocument.Equals(_previouslyPointedDocument)) {
+                        if (_previouslyPointedDocument != null) {
+                            _previouslyPointedDocument.IsFocused = false;
+                        }
+                    
+                        _previouslyPointedDocument = xrInteractableUIDocument;
+                    }
+                    
+                    if (!xrInteractableUIDocument.IsFocused) {
+                        xrInteractableUIDocument.IsFocused = true;
+                    }
+
+                    InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
+                        UIToolkitLocalPosition = xrInteractableUIDocument.UIToolkitPosition(raycastHit.point)
+                    });
+                    UIToolkitLocalPosition = GetChildControl<Vector2Control>(UIToolkitLocalPositionName);
+                }
             }
             else {
+                if (_previouslyPointedDocument != null) {
+                    _previouslyPointedDocument.IsFocused = false;
+                    _previouslyPointedDocument = null;
+                }
+
                 InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                     UIToolkitLocalPosition = Vector2.zero
                 });
