@@ -44,7 +44,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             return (resizer.WorldBounds.WorldToLocal(worldHitPos) * resizer.RenderScale).WithY(y => Screen.height + y);
         }
 
-        internal static Tuple<EventCallback<PointerMoveEvent>, List<VisualElement>> AddPointerPositionDebugCallback(
+        internal static (EventCallback<PointerMoveEvent>, List<VisualElement>) AddPointerPositionDebugCallback(
             this VisualElement visualElement) {
             const int width = 15;
             const int clickOffset = 1;
@@ -83,8 +83,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             }
 
             visualElement.RegisterCallback((EventCallback<PointerMoveEvent>) Callback);
-            return new Tuple<EventCallback<PointerMoveEvent>, List<VisualElement>>(Callback,
-                new List<VisualElement>(new[] {pointerBottom, pointerTop, pointerLeft, pointerRight}));
+            return (Callback, new List<VisualElement>(new[] {pointerBottom, pointerTop, pointerLeft, pointerRight}));
         }
 
         [Pure]

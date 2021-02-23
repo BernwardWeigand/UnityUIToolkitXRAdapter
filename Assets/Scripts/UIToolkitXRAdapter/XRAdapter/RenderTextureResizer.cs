@@ -54,6 +54,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 _image.texture = null;
                 RenderTexture.ReleaseTemporary(Content.panelSettings.targetTexture);
             }
+            
+            Content.panelSettings.clearColor = false;
+
         }
 
         private void Update() {
@@ -75,6 +78,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             Content.panelSettings.scaleMode = PanelScaleModes.ConstantPixelSize;
             Content.panelSettings.scale = renderScale;
             _currentRenderScale = renderScale;
+            Content.panelSettings.clearColor = true;
             Content.panelSettings.targetTexture = renderTex;
             _image.texture = renderTex;
 
