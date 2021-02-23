@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -76,6 +77,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private void Update() {
             if (_hasFocus) {
+                // TODO handle focus in Controller to prevent focus in other panels
                 var panelSettings = Resizer.Content.panelSettings;
                 const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
                 var panel = panelSettings.GetType().GetProperty("panel", bindingFlags)?.GetValue(panelSettings);
