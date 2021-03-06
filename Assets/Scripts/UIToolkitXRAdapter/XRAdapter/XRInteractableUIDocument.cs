@@ -40,11 +40,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
                 var root = Resizer.Content.rootVisualElement;
                 if (value && debugPointerPosition) {
+                    root.AllowAllEvents();
                     _debugPointerPositionInformation = root.AddPointerPositionDebugCallback();
                 }
                 else if (debugPointerPosition && _debugPointerPositionInformation.HasValue) {
                     root.UnregisterCallback(_debugPointerPositionInformation.Value.Item1);
                     _debugPointerPositionInformation.Value.Item2.ForEach(p => p.RemoveFromHierarchy());
+                    root.BlockAllEvents();
                 }
 
                 _hasFocus = value;
