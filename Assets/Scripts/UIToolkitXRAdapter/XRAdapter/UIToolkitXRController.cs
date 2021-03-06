@@ -43,7 +43,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private XRController _leftController;
         private XRController _rightController;
-
+        
         private InputSystemEventSystem _inputSystemEventSystem;
         [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument;
 
@@ -67,6 +67,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
             var inputSystemEventSystem = Object.FindObjectOfType<InputSystemEventSystem>();
             if (inputSystemEventSystem != null) {
+                // TODO check if set correctly
                 _inputSystemEventSystem = inputSystemEventSystem;
             }
         }
