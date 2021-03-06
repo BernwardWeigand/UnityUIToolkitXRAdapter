@@ -43,7 +43,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
         private XRController _leftController;
         private XRController _rightController;
-        
+
         private InputSystemEventSystem _inputSystemEventSystem;
         [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument;
 
@@ -96,8 +96,14 @@ namespace UIToolkitXRAdapter.XRAdapter {
             if (possibleRaycastHit.HasValue) {
                 var raycastHit = possibleRaycastHit.Value;
                 var xrInteractableUIDocument = raycastHit.transform.gameObject.As<XRInteractableUIDocument>();
+                // TODO check if enabling/disabling works to block the focus based events
+
                 // ReSharper disable once InvertIf
                 if (xrInteractableUIDocument != null) {
+                    if (!_inputSystemEventSystem.isActiveAndEnabled) {
+                        _inputSystemEventSystem.enabled = true;
+                    }
+
                     if (!xrInteractableUIDocument.Equals(_previouslyPointedDocument)) {
                         if (_previouslyPointedDocument != null) {
                             _previouslyPointedDocument.IsFocused = false;
@@ -122,9 +128,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 if (_previouslyPointedDocument != null) {
                     _previouslyPointedDocument.IsFocused = false;
                     _previouslyPointedDocument = null;
-
-                    _inputSystemEventSystem.FocusOn(_previouslyPointedDocument);
                 }
+
+                _inputSystemEventSystem.enabled = false;
 
                 InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                     UIToolkitLocalPosition = Vector2.zero
