@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using CoreLibrary;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.UIElements.InputSystem;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -31,7 +33,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         /// <remarks>because of the lack of world space render support in the
         /// <see cref="UnityEngine.UIElements.InputSystem.InputSystemEventSystem.OnPointPerformed"/> method,
         /// which processes the return value, the <see cref="Screen.height"/> is part of the y-axis calculation.
-        /// The <see cref="XRInteractableUIDocument.debugPointer"/> may be useful to debug this method, if necessary.
+        /// The <see cref="XRInteractableUIDocument.debugPointerPosition"/> may be useful to debug this method.
         /// </remarks>
         /// <param name="xrUIDocument">
         /// The <see cref="RaycastHit.point"/> on the <see cref="XRInteractableUIDocument"/>
@@ -92,6 +94,19 @@ namespace UIToolkitXRAdapter.XRAdapter {
             pointer.style.backgroundColor = new StyleColor(Color.red);
             pointer.style.position = Position.Absolute;
             return pointer;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// TODO also set <see cref="InputSystemEventSystem.ScreenToPanel"/> to an implementation that allows to handle the focus correctly
+        /// <param name="eventSystem"></param>
+        /// <param name="uiDocument"></param>
+        internal static void FocusOn(this InputSystemEventSystem eventSystem, XRInteractableUIDocument uiDocument) {
+            var panelSettings = uiDocument.Resizer.Content.panelSettings;
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var panel = panelSettings.GetType().GetProperty("panel", bindingFlags)?.GetValue(panelSettings);
+            eventSystem.GetType().GetProperty("focusedPanel", bindingFlags)?.SetValue(eventSystem, panel);
         }
     }
 }

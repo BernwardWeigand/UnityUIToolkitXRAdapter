@@ -10,6 +10,7 @@ using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.Scripting;
+using UnityEngine.UIElements.InputSystem;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using static UIToolkitXRAdapter.XRAdapter.UIToolkitXRController;
@@ -43,7 +44,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private XRController _leftController;
         private XRController _rightController;
 
-        [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument = null;
+        private InputSystemEventSystem _inputSystemEventSystem;
+        [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument;
 
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
@@ -62,6 +64,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
             if (rightController != null) {
                 _rightController = rightController;
             }
+
+            var inputSystemEventSystem = Object.FindObjectOfType<InputSystemEventSystem>();
+            if (inputSystemEventSystem != null) {
+                _inputSystemEventSystem = inputSystemEventSystem;
+            }
         }
 
         static UIToolkitXRController() => InputSystem.RegisterLayout<UIToolkitXRController>();
@@ -73,6 +80,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         public void OnUpdate() {
+            // TODO maybe add dominant hand to ensure one pointer is used
             if (usages.Contains(LeftHand)) {
                 HandleController(_leftController);
             }
@@ -93,13 +101,15 @@ namespace UIToolkitXRAdapter.XRAdapter {
                         if (_previouslyPointedDocument != null) {
                             _previouslyPointedDocument.IsFocused = false;
                         }
-                    
+
                         _previouslyPointedDocument = xrInteractableUIDocument;
                     }
-                    
+
                     if (!xrInteractableUIDocument.IsFocused) {
                         xrInteractableUIDocument.IsFocused = true;
                     }
+
+                    _inputSystemEventSystem.FocusOn(xrInteractableUIDocument);
 
                     InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                         UIToolkitLocalPosition = xrInteractableUIDocument.UIToolkitPosition(raycastHit.point)
@@ -111,6 +121,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 if (_previouslyPointedDocument != null) {
                     _previouslyPointedDocument.IsFocused = false;
                     _previouslyPointedDocument = null;
+
+                    _inputSystemEventSystem.FocusOn(_previouslyPointedDocument);
                 }
 
                 InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
