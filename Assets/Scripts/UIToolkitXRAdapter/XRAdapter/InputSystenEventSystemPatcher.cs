@@ -23,9 +23,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
             // ReSharper disable once RedundantAssignment
             // ReSharper disable once InconsistentNaming
             /// <summary>
-            /// TODO
-            /// see https://harmony.pardeike.net/articles/patching-postfix.html#reading-or-changing-the-result
+            /// Have a look at 
+            /// <a href="https://harmony.pardeike.net/articles/patching-postfix.html#reading-or-changing-the-result">
+            /// the documentation</a> to understand how the patching works
             /// </summary>
+            /// TODO params doc
             /// <param name="__result"></param>
             /// <param name="panel"></param>
             /// <param name="screenPosition"></param>
