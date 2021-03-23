@@ -23,44 +23,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
 
         public bool debugPointerPosition;
-        private (EventCallback<PointerMoveEvent>, List<VisualElement>)? _debugPointerPositionInformation;
-
-
-        [SerializeField] private InputSystemEventSystem _inputSystemEventSystem;
-
-        // TODO remove the stuff if focus handling in Controller works perfect
-        private bool _hasFocus;
-
-        internal bool IsFocused {
-            get => _hasFocus;
-            set {
-                if (value == _hasFocus) {
-                    return;
-                }
-
-                var root = Resizer.Content.rootVisualElement;
-                if (value && debugPointerPosition) {
-                    root.AllowAllEvents();
-                    _debugPointerPositionInformation = root.AddPointerPositionDebugCallback();
-                }
-                else if (debugPointerPosition && _debugPointerPositionInformation.HasValue) {
-                    root.UnregisterCallback(_debugPointerPositionInformation.Value.Item1);
-                    _debugPointerPositionInformation.Value.Item2.ForEach(p => p.RemoveFromHierarchy());
-                    root.BlockAllEvents();
-                }
-
-                _hasFocus = value;
-            }
-        }
 
         public XRTextInput xrTextInput;
         private readonly List<TextField> _textFields = new List<TextField>();
 
         private void Awake() {
-            if (_inputSystemEventSystem.IsNull()) {
-                throw new Exception($"Please add a {nameof(InputSystemEventSystem)} to the {name}.");
-            }
-
             AssignComponent(out Resizer);
             _collider = gameObject.AddComponent<BoxCollider>();
             if (!Resizer.Initialized) {
@@ -68,10 +35,12 @@ namespace UIToolkitXRAdapter.XRAdapter {
             }
 
             Resizer.WorldBounds.pivot = new Vector2(0, 1);
+            var root = Resizer.Content.rootVisualElement;
+            root.Query<TextField>().ForEach(RegisterTextField);
 
-            IsFocused = false;
-
-            Resizer.Content.rootVisualElement.Query<TextField>().ForEach(RegisterTextField);
+            if (debugPointerPosition) {
+                root.AddPointerPositionDebugCallback();
+            }
         }
 
         private void Update() {

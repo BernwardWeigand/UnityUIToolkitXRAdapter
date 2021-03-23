@@ -45,11 +45,14 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private XRController _rightController;
 
         private InputSystemEventSystem _inputSystemEventSystem;
-        [CanBeNull] private XRInteractableUIDocument _previouslyPointedDocument;
 
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public Vector2Control UIToolkitLocalPosition { get; private set; }
+        [CanBeNull] internal object CurrentlyFocusedPanel { get; private set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public bool IsDominantHand { get; set; }
 
         protected override void FinishSetup() {
             base.FinishSetup();
@@ -67,9 +70,10 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
             var inputSystemEventSystem = Object.FindObjectOfType<InputSystemEventSystem>();
             if (inputSystemEventSystem != null) {
-                // TODO check if set correctly
                 _inputSystemEventSystem = inputSystemEventSystem;
             }
+
+            CurrentlyFocusedPanel = null;
         }
 
         static UIToolkitXRController() => InputSystem.RegisterLayout<UIToolkitXRController>();
@@ -81,12 +85,11 @@ namespace UIToolkitXRAdapter.XRAdapter {
         }
 
         public void OnUpdate() {
-            // TODO maybe add dominant hand to ensure one pointer is used
-            if (usages.Contains(LeftHand)) {
+            if (IsDominantHand && usages.Contains(LeftHand)) {
                 HandleController(_leftController);
             }
 
-            if (usages.Contains(RightHand)) {
+            if (IsDominantHand && usages.Contains(RightHand)) {
                 HandleController(_rightController);
             }
         }
@@ -104,19 +107,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
                         _inputSystemEventSystem.enabled = true;
                     }
 
-                    if (!xrInteractableUIDocument.Equals(_previouslyPointedDocument)) {
-                        if (_previouslyPointedDocument != null) {
-                            _previouslyPointedDocument.IsFocused = false;
-                        }
-
-                        _previouslyPointedDocument = xrInteractableUIDocument;
-                    }
-
-                    if (!xrInteractableUIDocument.IsFocused) {
-                        xrInteractableUIDocument.IsFocused = true;
-                    }
-
-                    _inputSystemEventSystem.FocusOn(xrInteractableUIDocument);
+                    CurrentlyFocusedPanel = _inputSystemEventSystem.GetPanelAndMarkAsFocused(xrInteractableUIDocument);
 
                     InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                         UIToolkitLocalPosition = xrInteractableUIDocument.UIToolkitPosition(raycastHit.point)
@@ -125,12 +116,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 }
             }
             else {
-                if (_previouslyPointedDocument != null) {
-                    _previouslyPointedDocument.IsFocused = false;
-                    _previouslyPointedDocument = null;
-                }
-
                 _inputSystemEventSystem.enabled = false;
+                CurrentlyFocusedPanel = null;
 
                 InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                     UIToolkitLocalPosition = Vector2.zero
@@ -149,7 +136,9 @@ namespace UIToolkitXRAdapter.XRAdapter {
 
             if ((characteristics & InputDeviceCharacteristics.Right) != 0 &&
                 InputSystem.GetDevice<UIToolkitXRController>(RightHand).IsNull()) {
-                InputSystem.SetDeviceUsage(InputSystem.AddDevice<UIToolkitXRController>(), RightHand);
+                var rightController = InputSystem.AddDevice<UIToolkitXRController>();
+                InputSystem.SetDeviceUsage(rightController, RightHand);
+                rightController.IsDominantHand = true;
             }
         }
 

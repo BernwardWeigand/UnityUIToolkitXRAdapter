@@ -46,8 +46,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             return (resizer.WorldBounds.WorldToLocal(worldHitPos) * resizer.RenderScale).WithY(y => Screen.height + y);
         }
 
-        internal static (EventCallback<PointerMoveEvent>, List<VisualElement>) AddPointerPositionDebugCallback(
-            this VisualElement visualElement) {
+        internal static void AddPointerPositionDebugCallback(this VisualElement visualElement) {
             const int width = 15;
             const int clickOffset = 1;
 
@@ -73,7 +72,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
             pointerBottom.style.width = new StyleLength(width + clickOffset * 3);
             visualElement.Add(pointerBottom);
 
-            void Callback(PointerMoveEvent evt) {
+            visualElement.RegisterCallback<PointerMoveEvent>(evt => {
                 pointerLeft.transform.position = evt.localPosition.WithY(y => y - (width + clickOffset))
                     .WithX(x => x - (width + clickOffset));
                 pointerBottom.transform.position = evt.localPosition.WithX(x => x - (width + clickOffset))
@@ -82,10 +81,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
                     .WithX(x => x - clickOffset);
                 pointerRight.transform.position = evt.localPosition.WithX(x => x + clickOffset)
                     .WithY(y => y - clickOffset);
-            }
-
-            visualElement.RegisterCallback((EventCallback<PointerMoveEvent>) Callback);
-            return (Callback, new List<VisualElement>(new[] {pointerBottom, pointerTop, pointerLeft, pointerRight}));
+            });
         }
 
         [Pure]
@@ -102,11 +98,14 @@ namespace UIToolkitXRAdapter.XRAdapter {
         /// TODO also set <see cref="InputSystemEventSystem.ScreenToPanel"/> to an implementation that allows to handle the focus correctly
         /// <param name="eventSystem"></param>
         /// <param name="uiDocument"></param>
-        internal static void FocusOn(this InputSystemEventSystem eventSystem, XRInteractableUIDocument uiDocument) {
+        /// <returns>the focused panel</returns>
+        internal static object GetPanelAndMarkAsFocused(this InputSystemEventSystem eventSystem, 
+            XRInteractableUIDocument uiDocument) {
             var panelSettings = uiDocument.Resizer.Content.panelSettings;
             const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
             var panel = panelSettings.GetType().GetProperty("panel", bindingFlags)?.GetValue(panelSettings);
             eventSystem.GetType().GetProperty("focusedPanel", bindingFlags)?.SetValue(eventSystem, panel);
+            return panel;
         }
     }
 }
