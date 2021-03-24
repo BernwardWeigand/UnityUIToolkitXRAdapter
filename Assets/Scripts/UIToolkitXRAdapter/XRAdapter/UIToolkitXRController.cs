@@ -136,6 +136,7 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 InputSystem.SetDeviceUsage(InputSystem.AddDevice<UIToolkitXRController>(), LeftHand);
             }
 
+            // ReSharper disable once InvertIf
             if ((characteristics & InputDeviceCharacteristics.Right) != 0 &&
                 InputSystem.GetDevice<UIToolkitXRController>(RightHand).IsNull()) {
                 var rightController = InputSystem.AddDevice<UIToolkitXRController>();
