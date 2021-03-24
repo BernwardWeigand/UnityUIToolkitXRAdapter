@@ -95,23 +95,22 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private const BindingFlags BindingFlags =
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
 
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="xrInteractableUIDocument"></param>
-        /// <returns>the focused panel</returns>
+        /// <summary> Extracts the <see cref="PanelSettings.panel"/> via reflection, because it is internal</summary>
+        /// <param name="xrInteractableUIDocument">
+        /// the <see cref="XRInteractableUIDocument"/> holding the property that has to be extracted
+        /// </param>
+        /// <returns>the extracted <see cref="BaseRuntimePanel"/></returns>
         internal static object GetPanel(this XRInteractableUIDocument xrInteractableUIDocument) {
             var panelSettings = xrInteractableUIDocument.Resizer.Content.panelSettings;
             return panelSettings.GetType().GetProperty("panel", BindingFlags)?.GetValue(panelSettings);
         }
 
         /// <summary>
-        /// 
+        /// Sets the <see cref="InputSystemEventSystem.focusedPanel"/> via reflection, because it is internal
         /// </summary>
-        /// <param name="eventSystem"></param>
-        /// <param name="panel"></param>
-        internal static void SetFocusedPanel(this InputSystemEventSystem eventSystem, object panel) {
+        /// <param name="eventSystem">the <see cref="InputSystemEventSystem"/> where the property is on</param>
+        /// <param name="panel">the <see cref="BaseRuntimePanel"/> that has to be marked as focused</param>
+        internal static void SetFocusedPanel(this InputSystemEventSystem eventSystem, object panel) =>
             eventSystem.GetType().GetProperty("focusedPanel", BindingFlags)?.SetValue(eventSystem, panel);
-        }
     }
 }
