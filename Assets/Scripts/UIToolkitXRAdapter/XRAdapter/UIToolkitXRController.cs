@@ -47,12 +47,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private InputSystemEventSystem _inputSystemEventSystem;
 
         // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        public Vector2Control UIToolkitLocalPosition { get; private set; }
-        [CanBeNull] internal object CurrentlyFocusedPanel { get; private set; }
+        public bool IsDominantHand { get; set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public bool IsDominantHand { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        public Vector2Control UIToolkitLocalPosition { get; private set; }
+
+        [CanBeNull] internal object CurrentlyFocusedPanel { get; private set; }
 
         protected override void FinishSetup() {
             base.FinishSetup();
@@ -99,15 +100,14 @@ namespace UIToolkitXRAdapter.XRAdapter {
             if (possibleRaycastHit.HasValue) {
                 var raycastHit = possibleRaycastHit.Value;
                 var xrInteractableUIDocument = raycastHit.transform.gameObject.As<XRInteractableUIDocument>();
-                // TODO check if enabling/disabling works to block the focus based events
 
                 // ReSharper disable once InvertIf
                 if (xrInteractableUIDocument != null) {
-                    if (!_inputSystemEventSystem.isActiveAndEnabled) {
-                        _inputSystemEventSystem.enabled = true;
+                    if (CurrentlyFocusedPanel.IsNull()) {
+                        var panel = xrInteractableUIDocument.GetPanel();
+                        CurrentlyFocusedPanel = panel;
+                        _inputSystemEventSystem.SetFocusedPanel(panel);
                     }
-
-                    CurrentlyFocusedPanel = _inputSystemEventSystem.GetPanelAndMarkAsFocused(xrInteractableUIDocument);
 
                     InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                         UIToolkitLocalPosition = xrInteractableUIDocument.UIToolkitPosition(raycastHit.point)
@@ -116,8 +116,10 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 }
             }
             else {
-                _inputSystemEventSystem.enabled = false;
-                CurrentlyFocusedPanel = null;
+                if (CurrentlyFocusedPanel != null) {
+                    CurrentlyFocusedPanel = null;
+                    _inputSystemEventSystem.SetFocusedPanel(null);
+                }
 
                 InputSystem.QueueStateEvent(this, new UIToolkitXRControllerState {
                     UIToolkitLocalPosition = Vector2.zero

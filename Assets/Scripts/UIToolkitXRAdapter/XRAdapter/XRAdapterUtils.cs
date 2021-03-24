@@ -92,20 +92,26 @@ namespace UIToolkitXRAdapter.XRAdapter {
             return pointer;
         }
 
+        private const BindingFlags BindingFlags =
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="xrInteractableUIDocument"></param>
+        /// <returns>the focused panel</returns>
+        internal static object GetPanel(this XRInteractableUIDocument xrInteractableUIDocument) {
+            var panelSettings = xrInteractableUIDocument.Resizer.Content.panelSettings;
+            return panelSettings.GetType().GetProperty("panel", BindingFlags)?.GetValue(panelSettings);
+        }
+
         /// <summary>
         /// 
         /// </summary>
-        /// TODO also set <see cref="InputSystemEventSystem.ScreenToPanel"/> to an implementation that allows to handle the focus correctly
         /// <param name="eventSystem"></param>
-        /// <param name="uiDocument"></param>
-        /// <returns>the focused panel</returns>
-        internal static object GetPanelAndMarkAsFocused(this InputSystemEventSystem eventSystem, 
-            XRInteractableUIDocument uiDocument) {
-            var panelSettings = uiDocument.Resizer.Content.panelSettings;
-            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var panel = panelSettings.GetType().GetProperty("panel", bindingFlags)?.GetValue(panelSettings);
-            eventSystem.GetType().GetProperty("focusedPanel", bindingFlags)?.SetValue(eventSystem, panel);
-            return panel;
+        /// <param name="panel"></param>
+        internal static void SetFocusedPanel(this InputSystemEventSystem eventSystem, object panel) {
+            eventSystem.GetType().GetProperty("focusedPanel", BindingFlags)?.SetValue(eventSystem, panel);
         }
     }
 }
