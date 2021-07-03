@@ -95,11 +95,13 @@ namespace UIToolkitXRAdapter.XRAdapter {
         private const BindingFlags BindingFlags =
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
 
+        
         /// <summary> Extracts the <see cref="PanelSettings.panel"/> via reflection, because it is internal</summary>
         /// <param name="xrInteractableUIDocument">
         /// the <see cref="XRInteractableUIDocument"/> holding the property that has to be extracted
         /// </param>
         /// <returns>the extracted <see cref="BaseRuntimePanel"/></returns>
+        [CanBeNull]
         internal static object GetPanel(this XRInteractableUIDocument xrInteractableUIDocument) {
             var panelSettings = xrInteractableUIDocument.Resizer.Content.panelSettings;
             return panelSettings.GetType().GetProperty("panel", BindingFlags)?.GetValue(panelSettings);

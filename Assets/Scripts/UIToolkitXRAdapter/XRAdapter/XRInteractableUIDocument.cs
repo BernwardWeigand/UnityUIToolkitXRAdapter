@@ -18,10 +18,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
     public class XRInteractableUIDocument : BaseBehaviour {
         private BoxCollider _collider;
 
-
         internal RenderTextureResizer Resizer;
-
-
+        
         public bool debugPointerPosition;
 
         public XRTextInput xrTextInput;

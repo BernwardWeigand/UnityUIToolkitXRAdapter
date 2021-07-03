@@ -1,15 +1,22 @@
 ﻿using System.Reflection;
-using UnityEditor;
+using CoreLibrary;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements.InputSystem;
 using static UnityEngine.InputSystem.CommonUsages;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UIToolkitXRAdapter.XRAdapter {
-    [InitializeOnLoad]
-    internal class InputSystenEventSystemPatcher {
-        static InputSystenEventSystemPatcher() {
+    internal class InputSystemEventSystemPatcher {
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod]
+#endif
+        public static void PatchInputSystemEventSystem() {
             var harmony = new Harmony("ui.toolkit.xr.adapter");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
@@ -50,7 +57,8 @@ namespace UIToolkitXRAdapter.XRAdapter {
                 var dominantController = rightController.IsDominantHand
                     ? rightController
                     : InputSystem.GetDevice<UIToolkitXRController>(LeftHand);
-                __result = dominantController.CurrentlyFocusedPanel == panel;
+
+                __result = dominantController.CurrentlyFocusedPanel.IfNotNull(focusedPanel => focusedPanel == panel);
             }
         }
     }
