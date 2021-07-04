@@ -4,16 +4,15 @@ using System.Linq;
 using CoreLibrary;
 using UIToolkitXRAdapter.AngularResizing.DefaultElements;
 using UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements;
+using UIToolkitXRAdapter.XRAdapter;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace UIToolkitXRAdapter.AngularResizing {
-    [RequireComponent(typeof(UIDocument), typeof(RectTransform), typeof(RawImage))]
+    [RequireComponent(typeof(RenderTextureResizer))]
     public class AngularResizingElementsManager : BaseBehaviour {
         private Camera _camera;
-        private UIDocument _document;
-        private RectTransform _panel;
+        private RenderTextureResizer _resizer;
         private RectTransform _canvasRect;
         private Renderer _renderer;
 
@@ -23,8 +22,8 @@ namespace UIToolkitXRAdapter.AngularResizing {
                 throw new Exception("Could not find main Camera.");
             }
 
-            AssignComponent(out _document);
-            AssignComponent(out _panel);
+            AssignComponent(out _resizer);
+            
             AssignComponent(out _renderer, Search.InParents);
 
             AssignComponent(out Canvas canvas, Search.InParents);
@@ -39,12 +38,12 @@ namespace UIToolkitXRAdapter.AngularResizing {
             if (SizeIsCorrupted()) {
                 throw new UnityException("The canvas and the UI Document have to have the same size!");
             }
-            
 
+            var document = _resizer.Content;
             // TODO may refactor it towards reflection if code becomes more complex
-            _document.rootVisualElement.Query<AngularFontHeightButton>().Where(CanResize).Build().ForEach(Resize);
-            _document.rootVisualElement.Query<AngularFontHeightLabel>().Where(CanResize).Build().ForEach(Resize);
-            _document.rootVisualElement.Query<AngularResizingVisualElement>().Where(CanResize).Build().ForEach(Resize);
+            document.rootVisualElement.Query<AngularFontHeightButton>().Where(CanResize).Build().ForEach(Resize);
+            document.rootVisualElement.Query<AngularFontHeightLabel>().Where(CanResize).Build().ForEach(Resize);
+            document.rootVisualElement.Query<AngularResizingVisualElement>().Where(CanResize).Build().ForEach(Resize);
         }
 
         // ReSharper disable once IdentifierTypo
@@ -53,7 +52,7 @@ namespace UIToolkitXRAdapter.AngularResizing {
 
         private bool SizeIsCorrupted() {
             var canvasBounds = _canvasRect.rect;
-            var uiBounds = _document.rootVisualElement.layout;
+            var uiBounds = _resizer.Content.rootVisualElement.layout;
 
             if (float.IsNaN(uiBounds.height) || float.IsNaN(uiBounds.width)) {
                 // the UIDocument is not initialized
@@ -73,13 +72,15 @@ namespace UIToolkitXRAdapter.AngularResizing {
                 CalculateCornerWorldPosition(new Vector2(layout.xMax, layout.yMin)),
                 CalculateCornerWorldPosition(new Vector2(layout.xMax, layout.yMax))
             }.Select(DistanceToCamera).Min();
-            angularResizableElement.Resize(rightDistance.Max(leftDistance), _panel.lossyScale.y);
+            angularResizableElement.Resize(rightDistance.Max(leftDistance), _resizer.WorldBounds.lossyScale.y);
         }
 
-        private float DistanceToCamera(Vector3 worldPosition) => 
+        private float DistanceToCamera(Vector3 worldPosition) =>
             Vector3.Distance(_camera.transform.position, worldPosition);
 
-        private Vector3 CalculateCornerWorldPosition(Vector2 localCornerPosition) =>
-            _panel.position + _panel.rotation * (localCornerPosition * _panel.lossyScale);
+        private Vector3 CalculateCornerWorldPosition(Vector2 localCornerPosition) {
+            var panel = _resizer.WorldBounds;
+            return panel.position + panel.rotation * (localCornerPosition * panel.lossyScale);
+        }
     }
 }
