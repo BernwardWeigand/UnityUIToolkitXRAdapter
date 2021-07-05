@@ -22,14 +22,14 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
             var angularFontHeight = CalculateSizeInPixel(AngularFontHeight, distanceToCamera, pixelPerMeter);
 
             var availableWidth = resolvedStyle.width;
-            Debug.Log("availableWidth: " + availableWidth);
+            //Debug.Log("availableWidth: " + availableWidth);
 
             var textInputNewBounds = MeasureTextSize(text, availableWidth, AtMost, angularFontHeight, AtMost);
             var labelNewBounds = labelElement.MeasureTextSize(labelElement.text,
                 availableWidth - textInputNewBounds.y, AtMost, angularFontHeight, AtMost);
             var newBounds =
                 new Vector2(labelNewBounds.y.Max(textInputNewBounds.y), textInputNewBounds.x + labelNewBounds.x);
-            Debug.Log("newBounds: " + newBounds);
+            //Debug.Log("newBounds: " + newBounds);
             var currentFontHeight = resolvedStyle.fontSize;
 
             if (InitialFontHeight.HasValue) {
