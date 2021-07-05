@@ -43,6 +43,7 @@ namespace UIToolkitXRAdapter.AngularResizing {
             // TODO may refactor it towards reflection if code becomes more complex
             document.rootVisualElement.Query<AngularFontHeightButton>().Where(CanResize).Build().ForEach(Resize);
             document.rootVisualElement.Query<AngularFontHeightLabel>().Where(CanResize).Build().ForEach(Resize);
+            document.rootVisualElement.Query<AngularFontHeightTextField>().Where(CanResize).Build().ForEach(Resize);
             document.rootVisualElement.Query<AngularResizingVisualElement>().Where(CanResize).Build().ForEach(Resize);
         }
 
