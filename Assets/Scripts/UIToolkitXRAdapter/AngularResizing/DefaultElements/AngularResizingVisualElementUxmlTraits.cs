@@ -3,6 +3,9 @@ using static UIToolkitXRAdapter.AngularResizing.DefaultElements.AngularResizingE
 
 namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
     public class AngularResizingVisualElementUxmlTraits : VisualElement.UxmlTraits {
+        public const string CullWhenCanNotExpandName = "cull-when-cannot-expand";
+        public const bool CullWhenCanNotExpandDefault = false;
+        
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
             // ReSharper disable once InconsistentNaming
             private UxmlFloatAttributeDescription m_angularHeight = new UxmlFloatAttributeDescription {
@@ -19,8 +22,8 @@ namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
             // ReSharper disable once InconsistentNaming
             private UxmlBoolAttributeDescription m_cullWhenCannotExpand = new UxmlBoolAttributeDescription {
-                name = "cull-when-cannot-expand",
-                defaultValue = false
+                name = CullWhenCanNotExpandName,
+                defaultValue = CullWhenCanNotExpandDefault
             };
 
             /// <inheritdoc cref="VisualElement.UxmlTraits.Init"/>

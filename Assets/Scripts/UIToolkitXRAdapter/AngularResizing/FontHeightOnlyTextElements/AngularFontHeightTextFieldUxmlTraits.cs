@@ -1,20 +1,25 @@
-﻿using UnityEngine.UIElements;
+﻿using UIToolkitXRAdapter.AngularResizing.DefaultElements;
+using UnityEngine.UIElements;
 using static UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements.AngularFontHeightTextElementsUtils;
 
 namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
     public class AngularFontHeightTextFieldUxmlTraits : TextField.UxmlTraits {
+        
+        public const string AngularFontHeightName = "font-height-in-arc-minutes";
+        public const float DefaultAngularFontHeight = 90f;
+        
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         // ReSharper disable once InconsistentNaming
         private UxmlFloatAttributeDescription m_angularFontHeight = new UxmlFloatAttributeDescription {
-            name = "font-height-in-arc-minutes",
-            defaultValue = 90f
+            name = AngularFontHeightName,
+            defaultValue = DefaultAngularFontHeight
         };
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         // ReSharper disable once InconsistentNaming
         private UxmlBoolAttributeDescription m_cullWhenTextCannotExpand = new UxmlBoolAttributeDescription {
-            name = "cull-element-when-text-cannot-expand",
-            defaultValue = false
+            name = AngularResizingVisualElementUxmlTraits.CullWhenCanNotExpandName,
+            defaultValue = AngularResizingVisualElementUxmlTraits.CullWhenCanNotExpandDefault
         };
 
         /// <inheritdoc cref="TextField.UxmlTraits.Init"/>

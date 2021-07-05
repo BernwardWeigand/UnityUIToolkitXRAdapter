@@ -12,7 +12,7 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
         [Pure]
         internal static Length? ExtractFontSize(IUxmlAttributes uxmlAttributes) {
             var value = uxmlAttributes.ToStylesDictionary();
-            return value.IsNull() ? (Length?) null : ExtractFontSize(value);
+            return value.IsNull() ? null : ExtractFontSize(value);
         }
 
 
@@ -66,15 +66,8 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
         }
 
         [Pure]
-        private static Length ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) {
-            var length = ExtractLength(stylesAsDict, "font-size");
-            if (length.HasValue) {
-                return length.Value;
-            }
-
-            throw new UnityException(
-                $"Could not read font size for an {nameof(IAngularFontHeightTextElement<TextElement>)}.");
-        }
+        private static Length? ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) => 
+            ExtractLength(stylesAsDict, "font-size");
 
         [Pure]
         private static bool IsHigherThanContent(this float heightInPixel, VisualElement visualElement) =>
