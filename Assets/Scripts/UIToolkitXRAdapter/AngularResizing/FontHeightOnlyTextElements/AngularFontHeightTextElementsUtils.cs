@@ -61,20 +61,20 @@ namespace UIToolkitXRAdapter.AngularResizing.FontHeightOnlyTextElements {
                 textElement.style.visibility = Visible;
             }
 
-            textElement.style.fontSize = new StyleLength(angularFontHeight);
+            textElement.style.fontSize = angularFontHeight;
             textElement.MarkDirtyRepaint();
         }
 
         [Pure]
-        private static Length? ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) => 
+        private static Length? ExtractFontSize(IReadOnlyDictionary<string, string> stylesAsDict) =>
             ExtractLength(stylesAsDict, "font-size");
 
         [Pure]
-        private static bool IsHigherThanContent(this float heightInPixel, VisualElement visualElement) =>
+        internal static bool IsHigherThanContent(this float heightInPixel, VisualElement visualElement) =>
             heightInPixel >= visualElement.contentRect.height;
 
         [Pure]
-        private static bool IsWiderThanContent(this float widthInPixel, VisualElement visualElement) =>
+        internal static bool IsWiderThanContent(this float widthInPixel, VisualElement visualElement) =>
             widthInPixel >= visualElement.contentRect.width;
     }
 }

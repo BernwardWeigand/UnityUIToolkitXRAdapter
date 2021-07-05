@@ -83,8 +83,8 @@ namespace UIToolkitXRAdapter.AngularResizing.DefaultElements {
                 visualElement.style.visibility = Visible;
             }
 
-            visualElement.style.height = new StyleLength(newHeightInPixels);
-            visualElement.style.width = new StyleLength(newWidthInPixels);
+            visualElement.style.height = newHeightInPixels;
+            visualElement.style.width = newWidthInPixels;
         }
 
         // TODO refactor it and use the other elements height & height, if they are in a line
